@@ -118,13 +118,9 @@ export async function POST(request: Request) {
         model: "claude-sonnet-4-5-20250924",
         max_tokens: 4096,
         temperature: 0.5,
-        response_format: {
+        output_format: {
           type: "json_schema",
-          json_schema: {
-            name: "tailored_resume",
-            strict: true,
-            schema: schema,
-          },
+          schema: schema,
         },
         messages: [
           {
