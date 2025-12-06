@@ -7,12 +7,14 @@ interface ResumeDumpViewProps {
   resume: string;
   setResume: (resume: string) => void;
   onNext: () => void;
+  isLoading?: boolean;
 }
 
 export function ResumeDumpView({
   resume,
   setResume,
   onNext,
+  isLoading = false,
 }: ResumeDumpViewProps) {
   return (
     <div className="max-w-3xl mx-auto mt-10 animate-in slide-in-from-bottom-4 duration-500 px-4">
@@ -63,10 +65,10 @@ export function ResumeDumpView({
           </button>
           <Button
             onClick={onNext}
-            disabled={resume.length < 20}
+            disabled={resume.length < 20 || isLoading}
             className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save to Profile <ChevronRight size={20} />
+            {isLoading ? "Saving..." : "Save to Profile"} <ChevronRight size={20} />
           </Button>
         </div>
       </Card>

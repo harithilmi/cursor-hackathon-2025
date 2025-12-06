@@ -61,7 +61,7 @@ export function JobCard({ job, fitScore, onClick }: JobCardProps) {
 
       <div className="border-t border-slate-100 pt-3 flex items-center justify-between mt-auto">
         <div className="flex gap-1 overflow-hidden">
-          {job.tags.slice(0, 3).map((tag) => (
+          {job.tags?.slice(0, 3).map((tag) => (
             <Badge
               key={tag}
               variant="outline"

@@ -36,6 +36,7 @@
   },
   "prettier": "@acme/prettier-config",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "convex": "^1.30.0"
   }
 }

@@ -2,38 +2,52 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { api } from "~/convex/_generated/api";
 import { GeneratorView } from "../kerjaflow/_components/generator-view";
 import { StatusFooter } from "../kerjaflow/_components/status-footer";
-import { MOCK_USER_DUMP_DEFAULT, MOCK_JOBS, type Job } from "../kerjaflow/_lib/mock-data";
 
 export default function GeneratePage() {
   const router = useRouter();
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [userDump, setUserDump] = useState(MOCK_USER_DUMP_DEFAULT);
+  const { user } = useUser();
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [userDump, setUserDump] = useState("");
+
+  // Get user from Convex
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
+  );
+
+  // Get user's resume
+  const resume = useQuery(
+    api.resumes.getUserResume,
+    convexUser?._id ? { userId: convexUser._id } : "skip"
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedJob = localStorage.getItem("kerjaflow_selected_job");
-      const savedResume = localStorage.getItem("kerjaflow_resume");
 
       if (savedJob) {
         setSelectedJob(JSON.parse(savedJob));
-      } else {
-        // Fallback to first job if none selected
-        setSelectedJob(MOCK_JOBS[0] || null);
-      }
-
-      if (savedResume) {
-        setUserDump(savedResume);
       }
     }
   }, []);
+
+  // Update userDump from Convex resume
+  useEffect(() => {
+    if (resume?.content) {
+      setUserDump(resume.content);
+    }
+  }, [resume]);
 
   const handleBack = () => {
     router.push("/results");
   };
 
-  if (!selectedJob) {
+  if (!selectedJob || !userDump) {
     return (
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8 flex items-center justify-center">
         <div className="text-center">
@@ -46,7 +60,12 @@ export default function GeneratePage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8">
       <main className="px-6 py-8">
-        <GeneratorView job={selectedJob} userDump={userDump} onBack={handleBack} />
+        <GeneratorView
+          job={selectedJob}
+          userDump={userDump}
+          onBack={handleBack}
+          userId={convexUser?._id}
+        />
       </main>
       <StatusFooter />
     </div>

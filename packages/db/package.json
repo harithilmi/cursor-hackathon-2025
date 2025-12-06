@@ -29,9 +29,7 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
-    "drizzle-orm": "^0.44.7",
-    "drizzle-zod": "^0.8.3",
+    "drizzle-orm": "^0.45.0",
     "zod": "catalog:"
   },
   "devDependencies": {

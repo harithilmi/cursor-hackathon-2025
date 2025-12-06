@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Briefcase, FileText } from "lucide-react";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 interface HeaderProps {
   currentView: "dump" | "search" | "results" | "generate";
@@ -9,6 +10,7 @@ interface HeaderProps {
 
 export function Header({ currentView }: HeaderProps) {
   const router = useRouter();
+  const { user } = useUser();
 
   return (
     <header className="bg-white border-b border-slate-200 py-3 px-6 sticky top-0 z-50 shadow-sm">
@@ -37,9 +39,14 @@ export function Header({ currentView }: HeaderProps) {
                 <FileText size={14} /> Master Dump
               </button>
             )}
-            <div className="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
-              D
-            </div>
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "w-9 h-9",
+                },
+              }}
+            />
           </div>
         </div>
       </div>

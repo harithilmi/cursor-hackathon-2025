@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 
 import { cn } from "@acme/ui";
 import { ThemeProvider } from "@acme/ui/theme";
@@ -58,12 +59,14 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           geistMono.variable,
         )}
       >
-        <ThemeProvider defaultTheme="light" forcedTheme="light">
-          <ConvexClientProvider>
-            <TRPCReactProvider>{props.children}</TRPCReactProvider>
-            <Toaster />
-          </ConvexClientProvider>
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider defaultTheme="light" forcedTheme="light">
+            <ConvexClientProvider>
+              <TRPCReactProvider>{props.children}</TRPCReactProvider>
+              <Toaster />
+            </ConvexClientProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
