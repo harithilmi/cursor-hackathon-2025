@@ -1,11 +1,20 @@
+"use client";
+
 import { Briefcase, Database } from "lucide-react";
 import { Button } from "@acme/ui/button";
+import { signIn } from "~/auth/client";
 
 interface LoginViewProps {
   onLogin: () => void;
 }
 
 export function LoginView({ onLogin }: LoginViewProps) {
+  const handleGoogleLogin = async () => {
+    await signIn.social({
+      provider: "google",
+      callbackURL: "/dump",
+    });
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] animate-in fade-in zoom-in duration-500">
       <div className="mb-8 p-6 bg-indigo-100 rounded-full shadow-lg relative group">
@@ -23,7 +32,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
       </p>
 
       <Button
-        onClick={onLogin}
+        onClick={handleGoogleLogin}
         variant="outline"
         size="lg"
         className="flex items-center gap-3 px-8 py-4 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:border-indigo-300"
