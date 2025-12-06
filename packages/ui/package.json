@@ -13,7 +13,6 @@
     "./label": "./src/label.tsx",
     "./separator": "./src/separator.tsx",
     "./textarea": "./src/textarea.tsx",
-    "./theme": "./src/theme.tsx",
     "./toast": "./src/toast.tsx"
   },
   "license": "MIT",

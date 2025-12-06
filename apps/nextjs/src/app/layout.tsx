@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { cn } from "@acme/ui";
-import { ThemeProvider } from "@acme/ui/theme";
 import { Toaster } from "@acme/ui/toast";
 
 import { env } from "~/env";
@@ -34,10 +33,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
+  themeColor: "white",
 };
 
 const geistSans = Geist({
@@ -51,7 +47,7 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={cn(
           "bg-background text-foreground min-h-screen font-sans antialiased",
@@ -60,12 +56,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
       >
         <ClerkProvider>
-          <ThemeProvider defaultTheme="light" forcedTheme="light">
-            <ConvexClientProvider>
-              <TRPCReactProvider>{props.children}</TRPCReactProvider>
-              <Toaster />
-            </ConvexClientProvider>
-          </ThemeProvider>
+          <ConvexClientProvider>
+            <TRPCReactProvider>{props.children}</TRPCReactProvider>
+            <Toaster />
+          </ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>
