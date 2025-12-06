@@ -9,6 +9,15 @@ export const list = query({
   },
 });
 
+export const byId = query({
+  args: {
+    id: v.id("posts"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
 export const create = mutation({
   args: {
     title: v.string(),

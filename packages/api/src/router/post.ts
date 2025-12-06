@@ -13,8 +13,9 @@ export const postRouter = {
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const posts = await ctx.convex.query(api.posts.list);
-      return posts.find((post) => post._id === input.id);
+      return await ctx.convex.query(api.posts.byId, {
+        id: input.id as Id<"posts">,
+      });
     }),
 
   create: protectedProcedure
@@ -27,6 +28,7 @@ export const postRouter = {
     }),
 
   delete: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    // Note: Convex will validate the ID format and throw if invalid
     return await ctx.convex.mutation(api.posts.deletePost, {
       id: input as Id<"posts">,
     });
