@@ -29,7 +29,6 @@ const handler = async (req: NextRequest) => {
     req,
     createContext: () =>
       createTRPCContext({
-        auth: null, // TODO: Integrate Convex auth here if needed
         headers: req.headers,
       }),
     onError({ error, path }) {
