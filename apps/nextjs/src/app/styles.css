@@ -18,37 +18,9 @@
 @layer base {
   * {
     @apply border-border;
-    cursor: default;
   }
 
   body {
     letter-spacing: var(--tracking-normal);
-  }
-
-  button,
-  a,
-  [role="button"],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"] {
-    cursor: pointer;
-  }
-
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="url"],
-  textarea,
-  select {
-    cursor: text;
-  }
-
-  input[disabled],
-  button[disabled],
-  textarea[disabled],
-  select[disabled] {
-    cursor: not-allowed;
   }
 }
