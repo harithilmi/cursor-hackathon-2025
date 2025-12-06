@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
 
 export const list = query({
+  args: {},
   handler: async (ctx): Promise<Doc<"posts">[]> => {
     return await ctx.db.query("posts").order("desc").collect();
   },
