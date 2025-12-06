@@ -1,37 +1,49 @@
-import { AlertTriangle, Briefcase, ChevronRight, MapPin } from "lucide-react";
+import { AlertTriangle, Briefcase, ChevronRight, Loader2, MapPin } from "lucide-react";
 import { Card } from "@acme/ui/card";
 import { Badge } from "@acme/ui/badge";
 import type { Job } from "../_lib/mock-data";
 
 interface JobCardProps {
   job: Job;
-  fitScore: number;
+  fitScore?: number;
+  isRanking?: boolean;
   onClick: (job: Job) => void;
 }
 
-export function JobCard({ job, fitScore, onClick }: JobCardProps) {
+export function JobCard({ job, fitScore, isRanking = false, onClick }: JobCardProps) {
   return (
     <Card
       onClick={() => onClick(job)}
       className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-indigo-300 transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between"
     >
-      {/* Fit Score Badge */}
+      {/* Fit Score Badge or Loading Indicator */}
       <div className="absolute top-0 right-0 p-4">
         <div className="flex flex-col items-end">
-          <div
-            className={`text-2xl font-black ${
-              fitScore > 80
-                ? "text-green-600"
-                : fitScore > 60
-                  ? "text-indigo-600"
-                  : "text-slate-400"
-            }`}
-          >
-            {fitScore}%
-          </div>
-          <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-            Fit Score
-          </div>
+          {isRanking ? (
+            <div className="flex flex-col items-center">
+              <Loader2 size={24} className="text-indigo-600 animate-spin" />
+              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mt-1">
+                Ranking...
+              </div>
+            </div>
+          ) : (
+            <>
+              <div
+                className={`text-2xl font-black ${
+                  fitScore && fitScore > 80
+                    ? "text-green-600"
+                    : fitScore && fitScore > 60
+                      ? "text-indigo-600"
+                      : "text-slate-400"
+                }`}
+              >
+                {fitScore || 0}%
+              </div>
+              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                Fit Score
+              </div>
+            </>
+          )}
         </div>
       </div>
 

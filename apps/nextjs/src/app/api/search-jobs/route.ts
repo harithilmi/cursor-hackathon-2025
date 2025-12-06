@@ -70,6 +70,14 @@ export async function POST(request: Request) {
             url: job.url,
           })),
         });
+
+        // Trigger ranking in the background (fire and forget)
+        convex.action(api.rankings.rankJobsForSearch, {
+          userId: userId as any,
+          searchTerm,
+        }).catch((error) => {
+          console.error("Failed to trigger job ranking:", error);
+        });
       } catch (convexError) {
         console.error("Failed to save jobs to Convex:", convexError);
         // Continue even if save fails

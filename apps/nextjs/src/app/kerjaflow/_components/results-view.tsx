@@ -34,28 +34,18 @@ export function ResultsView({
   onJobSelect,
   onModifySearch,
 }: ResultsViewProps) {
-  if (isRanking) {
+  // Show full loading screen only if no jobs yet
+  if (jobs.length === 0 && isRanking) {
     return (
       <div className="max-w-5xl mx-auto animate-in fade-in duration-500">
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
           <Loader2 size={48} className="text-indigo-600 animate-spin" />
           <h2 className="text-2xl font-bold text-slate-900">
-            AI is ranking your jobs...
+            Loading jobs...
           </h2>
           <p className="text-slate-500 text-center max-w-md">
-            Claude is analyzing each job description against your resume to find the best matches
+            Fetching your job listings
           </p>
-          <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-            <div className="w-full bg-slate-200 rounded-full h-3 mb-4 overflow-hidden">
-              <div
-                className="bg-indigo-600 h-full transition-all duration-500 ease-out"
-                style={{ width: `${rankingProgress}%` }}
-              />
-            </div>
-            <p className="text-sm text-slate-600 text-center">
-              Ranking progress: {rankingProgress}%
-            </p>
-          </div>
         </div>
       </div>
     );
@@ -90,7 +80,7 @@ export function ResultsView({
             Matches for &quot;{searchQuery || "Software Engineer"}&quot;
           </h2>
           <p className="text-slate-500 text-sm mt-1">
-            Found {jobs.length} jobs. Ranked by AI fit with your master resume.
+            Found {jobs.length} jobs. {isRanking ? "AI ranking in progress..." : "Ranked by AI fit with your master resume."}
           </p>
         </div>
         <button
@@ -100,6 +90,26 @@ export function ResultsView({
           Modify Search
         </button>
       </div>
+
+      {/* Show ranking progress bar if still ranking */}
+      {isRanking && (
+        <div className="w-full bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-slate-700">
+              AI Ranking Progress
+            </p>
+            <p className="text-sm font-bold text-indigo-600">
+              {rankingProgress}%
+            </p>
+          </div>
+          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-indigo-600 h-full transition-all duration-500 ease-out"
+              style={{ width: `${rankingProgress}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {jobs.map((job) => (
@@ -119,7 +129,8 @@ export function ResultsView({
               red_flags: [],
               risk_level: "Safe" as const,
             }}
-            fitScore={job.fitScore || 0}
+            fitScore={job.fitScore}
+            isRanking={job.fitScore === undefined}
             onClick={() => onJobSelect(job)}
           />
         ))}

@@ -37,6 +37,8 @@ export default defineSchema({
     jobId: v.id("jobListings"),
     fitScore: v.number(), // 0-100
     aiReasoning: v.string(),
+    keyStrengths: v.optional(v.array(v.string())),
+    potentialChallenges: v.optional(v.array(v.string())),
     rankedAt: v.number(),
   }).index("by_user", ["userId"])
     .index("by_job", ["jobId"])
