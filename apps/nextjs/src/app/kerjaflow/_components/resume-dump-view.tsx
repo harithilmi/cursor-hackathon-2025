@@ -15,60 +15,66 @@ export function ResumeDumpView({
   onNext,
 }: ResumeDumpViewProps) {
   return (
-    <div className="max-w-3xl mx-auto mt-10 animate-in slide-in-from-bottom-4 duration-500 px-4">
+    <div className="max-w-3xl mx-auto mt-10 px-4">
+      {/* #region HEADER */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="bg-indigo-100 p-3 rounded-full">
-          <FileText className="text-indigo-600" size={24} />
+        <div className="border-2 border-foreground p-3">
+          <FileText className="text-foreground" size={20} strokeWidth={1.5} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">
-            Step 1: The &quot;Master Dump&quot;
+          <h2 className="text-lg font-bold text-foreground">
+            Step 1: Master Dump
           </h2>
-          <p className="text-slate-500 text-sm">
-            Paste your <strong>entire</strong> career history here. We use this
-            &quot;Master Data&quot; to generate specific, tailored PDFs for each job
-            application.
+          <p className="text-sm text-muted-foreground mt-1">
+            Paste your entire career history here
           </p>
         </div>
       </div>
+      {/* #endregion */}
 
-      <Card className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <label className="text-sm font-bold text-slate-700">
+      <Card className="p-0">
+        {/* #region CARD HEADER */}
+        <div className="flex justify-between items-center p-4 border-b border-muted">
+          <label className="text-sm font-medium text-foreground">
             Raw Experience Data
           </label>
-          <button className="text-indigo-600 text-xs font-bold flex items-center gap-1 hover:underline">
-            <UploadCloud size={14} /> Upload Existing PDF
+          <button className="text-accent text-xs font-medium flex items-center gap-1.5 hover:text-foreground transition-colors">
+            <UploadCloud size={12} /> Upload PDF
           </button>
         </div>
+        {/* #endregion */}
 
-        <div className="relative">
+        {/* #region TEXTAREA */}
+        <div className="relative p-4">
           <Textarea
             value={resume}
             onChange={(e) => setResume(e.target.value)}
-            className="w-full h-80 p-4 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none font-mono text-sm leading-relaxed bg-slate-50 resize-none"
-            placeholder="I worked at Company A doing X, Y, Z. I know React, Python. I like badminton..."
+            className="w-full h-80 resize-none border-0 focus-visible:border-0 focus-visible:bg-transparent p-0"
+            placeholder="Paste your experience here..."
           />
-          <div className="absolute bottom-4 right-4 text-xs text-slate-400 bg-white/90 px-2 py-1 rounded border border-slate-200 shadow-sm">
+          <div className="absolute bottom-6 right-6 text-xs text-muted-foreground border border-muted px-2 py-1">
             {resume.length} chars
           </div>
         </div>
+        {/* #endregion */}
 
-        <div className="mt-6 flex justify-between items-center">
+        {/* #region ACTIONS */}
+        <div className="p-4 border-t border-muted flex justify-between items-center">
           <button
             onClick={onNext}
-            className="text-slate-400 text-sm hover:text-slate-600 font-medium"
+            className="text-muted-foreground text-sm hover:text-foreground transition-colors"
           >
             Skip for now
           </button>
           <Button
             onClick={onNext}
             disabled={resume.length < 20}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2"
           >
-            Save to Profile <ChevronRight size={20} />
+            Save to Profile <ChevronRight size={14} />
           </Button>
         </div>
+        {/* #endregion */}
       </Card>
     </div>
   );

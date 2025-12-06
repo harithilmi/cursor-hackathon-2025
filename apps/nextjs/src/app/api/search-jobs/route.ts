@@ -1,5 +1,7 @@
-import { ApifyClient } from "apify-client";
 import { NextResponse } from "next/server";
+import { ApifyClient } from "apify-client";
+
+import { env } from "~/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
 
     // Initialize the ApifyClient with your API token
     const client = new ApifyClient({
-      token: process.env.APIFY_API_TOKEN,
+      token: env.APIFY_API_TOKEN,
     });
 
     // Start the Actor and wait for it to finish

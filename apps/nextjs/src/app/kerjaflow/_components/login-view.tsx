@@ -1,4 +1,4 @@
-import { Briefcase, Database } from "lucide-react";
+import { Database, Terminal } from "lucide-react";
 import { Button } from "@acme/ui/button";
 
 interface LoginViewProps {
@@ -7,35 +7,36 @@ interface LoginViewProps {
 
 export function LoginView({ onLogin }: LoginViewProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] animate-in fade-in zoom-in duration-500">
-      <div className="mb-8 p-6 bg-indigo-100 rounded-full shadow-lg relative group">
-        <Briefcase size={64} className="text-indigo-600 relative z-10" />
-        <div className="absolute inset-0 bg-indigo-400 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+    <div className="flex flex-col items-center justify-center min-h-[80vh]">
+      <div className="mb-8 p-6 border-2 border-foreground relative">
+        <Terminal size={48} className="text-foreground" strokeWidth={1.5} />
       </div>
-      <h1 className="text-5xl font-extrabold text-slate-900 mb-2 tracking-tight">
-        KerjaFlow
-      </h1>
-      <p className="text-slate-500 mb-8 text-center max-w-md text-lg">
-        The Malaysian Career Agent.
-        <br />
-        We tailor your resume to beat the ATS and the &quot;Chinaman&quot;
-        filter.
-      </p>
+
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-foreground mb-4">
+          KerjaFlow
+        </h1>
+        <div className="text-sm text-muted-foreground space-y-1">
+          <p>The Malaysian Career Agent</p>
+          <p>Beat the ATS. Beat the system.</p>
+        </div>
+      </div>
 
       <Button
         onClick={onLogin}
         variant="outline"
         size="lg"
-        className="flex items-center gap-3 px-8 py-4 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:border-indigo-300"
+        className="flex items-center gap-3"
       >
         <img
           src="https://www.google.com/favicon.ico"
           alt="G"
-          className="w-5 h-5"
+          className="w-4 h-4"
         />
         Continue with Google
       </Button>
-      <div className="mt-8 flex gap-2 text-xs text-slate-400 font-mono bg-slate-100 px-3 py-1 rounded-full">
+
+      <div className="mt-12 flex gap-2 text-xs text-muted-foreground border border-muted px-3 py-1.5">
         <Database size={12} /> Powered by Convex
       </div>
     </div>

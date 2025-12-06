@@ -53,12 +53,12 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "bg-background text-foreground min-h-screen font-sans antialiased",
+          "bg-background text-foreground min-h-screen font-mono antialiased",
           geistSans.variable,
           geistMono.variable,
         )}
       >
-        <ThemeProvider defaultTheme="light" forcedTheme="light">
+        <ThemeProvider>
           <ConvexClientProvider>
             <TRPCReactProvider>{props.children}</TRPCReactProvider>
             <Toaster />
