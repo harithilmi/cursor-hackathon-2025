@@ -104,7 +104,7 @@ If you're curious about AI development or already shipping with Cursor, it's tim
 ### Prizes
 - $30,000+ in cash and credits for the winners
 - Every participant gets > $260+ in free credits and tools → over $200,000 in total perks for all participants
-- Sponsored by Cursor, Anthropic, Convex, Vercel, Mobbin, LeanMCP, ElevenLabs, TiDB, CodeRabbit, Cleve, Ryt Bank
+- Sponsored by Cursor, Anthropic, Convex, Vercel, Mobbin, LeanMCP, TiDB, CodeRabbit, Cleve, Ryt Bank
 
 ### Judging
 - Multiple sponsor-specific prize tracks available
@@ -204,15 +204,6 @@ Teams will be disqualified for:
 
 **Prizes:**
 - **Winners (Top 5 teams):** 20 NS memberships ($1,500/month each) - 4 memberships per winning team + Full onboarding to ns.com
-
----
-
-### ElevenLabs
-**Track:** Best Use of Voice AI on ElevenLabs
-
-**Prizes:**
-- **First Place:** 6 months Scale tier ($330 USD per month per team member)
-- **All Participants:** 1 month Pro coupon
 
 ---
 
