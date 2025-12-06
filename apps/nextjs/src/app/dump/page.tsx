@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ResumeDumpView } from "../_components/resume-dump-view";
-import { StatusFooter } from "../_components/status-footer";
-import { Header } from "../_components/header";
-import { MOCK_USER_DUMP_DEFAULT } from "../_lib/mock-data";
+import { ResumeDumpView } from "../kerjaflow/_components/resume-dump-view";
+import { StatusFooter } from "../kerjaflow/_components/status-footer";
+import { Header } from "../kerjaflow/_components/header";
+import { MOCK_USER_DUMP_DEFAULT } from "../kerjaflow/_lib/mock-data";
 
 export default function DumpPage() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function DumpPage() {
     if (typeof window !== "undefined") {
       localStorage.setItem("kerjaflow_resume", resume);
     }
-    router.push("/kerjaflow/search");
+    router.push("/search");
   };
 
   return (

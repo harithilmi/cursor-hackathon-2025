@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SearchView } from "../_components/search-view";
-import { StatusFooter } from "../_components/status-footer";
-import { Header } from "../_components/header";
+import { SearchView } from "../kerjaflow/_components/search-view";
+import { StatusFooter } from "../kerjaflow/_components/status-footer";
+import { Header } from "../kerjaflow/_components/header";
 
 export default function SearchPage() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function SearchPage() {
     if (typeof window !== "undefined") {
       localStorage.setItem("kerjaflow_search", searchQuery);
     }
-    router.push("/kerjaflow/results");
+    router.push("/results");
   };
 
   return (

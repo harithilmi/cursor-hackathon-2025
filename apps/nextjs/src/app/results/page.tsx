@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ResultsView } from "../_components/results-view";
-import { StatusFooter } from "../_components/status-footer";
-import { Header } from "../_components/header";
-import { MOCK_USER_DUMP_DEFAULT, type Job } from "../_lib/mock-data";
+import { ResultsView } from "../kerjaflow/_components/results-view";
+import { StatusFooter } from "../kerjaflow/_components/status-footer";
+import { Header } from "../kerjaflow/_components/header";
+import { MOCK_USER_DUMP_DEFAULT, type Job } from "../kerjaflow/_lib/mock-data";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -25,11 +25,11 @@ export default function ResultsPage() {
     if (typeof window !== "undefined") {
       localStorage.setItem("kerjaflow_selected_job", JSON.stringify(job));
     }
-    router.push("/kerjaflow/generate");
+    router.push("/generate");
   };
 
   const handleModifySearch = () => {
-    router.push("/kerjaflow/search");
+    router.push("/search");
   };
 
   return (

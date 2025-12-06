@@ -8,7 +8,7 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push("/kerjaflow/dump");
+    router.push("/dump");
   };
 
   return (

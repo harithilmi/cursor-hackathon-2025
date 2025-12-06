@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GeneratorView } from "../_components/generator-view";
-import { StatusFooter } from "../_components/status-footer";
-import { MOCK_USER_DUMP_DEFAULT, MOCK_JOBS, type Job } from "../_lib/mock-data";
+import { GeneratorView } from "../kerjaflow/_components/generator-view";
+import { StatusFooter } from "../kerjaflow/_components/status-footer";
+import { MOCK_USER_DUMP_DEFAULT, MOCK_JOBS, type Job } from "../kerjaflow/_lib/mock-data";
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function GeneratePage() {
   }, []);
 
   const handleBack = () => {
-    router.push("/kerjaflow/results");
+    router.push("/results");
   };
 
   if (!selectedJob) {
