@@ -53,3 +53,6 @@ dist/
 
 # tanstack
 .tanstack
+
+# apify actor (separate git repo)
+my-actor/

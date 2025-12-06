@@ -1,39 +1,22 @@
-import { Suspense } from "react";
+"use client";
 
-import { HydrateClient, prefetch, trpc } from "~/trpc/server";
-import {
-  CreatePostForm,
-  PostCardSkeleton,
-  PostList,
-} from "./_components/posts";
+import { useRouter } from "next/navigation";
+import { LoginView } from "./kerjaflow/_components/login-view";
+import { StatusFooter } from "./kerjaflow/_components/status-footer";
 
 export default function HomePage() {
-  prefetch(trpc.post.all.queryOptions());
+  const router = useRouter();
+
+  const handleLogin = () => {
+    router.push("/dump");
+  };
 
   return (
-    <HydrateClient>
-      <main className="container h-screen py-16">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            My <span className="text-primary">Todo</span> List
-          </h1>
-
-          <CreatePostForm />
-          <div className="w-full max-w-2xl overflow-y-scroll">
-            <Suspense
-              fallback={
-                <div className="flex w-full flex-col gap-4">
-                  <PostCardSkeleton />
-                  <PostCardSkeleton />
-                  <PostCardSkeleton />
-                </div>
-              }
-            >
-              <PostList />
-            </Suspense>
-          </div>
-        </div>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8">
+      <main className="px-6">
+        <LoginView onLogin={handleLogin} />
       </main>
-    </HydrateClient>
+      <StatusFooter />
+    </div>
   );
 }
