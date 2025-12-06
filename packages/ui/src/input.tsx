@@ -1,5 +1,10 @@
 import { cn } from "@acme/ui";
 
+/**
+ * Render a styled native input element that forwards all props and merges the provided `className` with default styles.
+ *
+ * @returns The input element with composed classes (including focus, disabled, file, and aria-invalid styles) and all forwarded props.
+ */
 export function Input({
   className,
   type,

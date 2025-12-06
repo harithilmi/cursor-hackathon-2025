@@ -12,6 +12,11 @@ import { MOCK_USER_DUMP_DEFAULT, type Job } from "../_lib/mock-data";
 
 type View = "login" | "dump" | "search" | "results" | "generate";
 
+/**
+ * Root application component that manages UI view state and renders the corresponding screens (login, resume dump, search, results, and generator).
+ *
+ * @returns The top-level React element for the KerjaFlow application UI.
+ */
 export function KerjaFlowApp() {
   const [view, setView] = useState<View>("login");
   const [dumpResume, setDumpResume] = useState(MOCK_USER_DUMP_DEFAULT);

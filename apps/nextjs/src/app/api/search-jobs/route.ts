@@ -16,6 +16,12 @@ interface JobListing {
   salary: string;
 }
 
+/**
+ * Handle POST requests to search jobs using an Apify actor for the provided search term.
+ *
+ * @param request - HTTP request whose JSON body must include `searchTerm` (string).
+ * @returns On success, a JSON response with `jobs` (array of JobListing) and `totalFound` (number). If `searchTerm` is missing, responds with status 400 and `{ error: "Search term is required" }`. On other failures, responds with status 500 and `{ error: "Failed to search jobs" }`.
+ */
 export async function POST(request: Request) {
   try {
     const { searchTerm } = (await request.json()) as { searchTerm: string };

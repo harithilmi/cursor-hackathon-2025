@@ -8,6 +8,16 @@ interface SearchViewProps {
   onSearch: () => void;
 }
 
+/**
+ * Render a centered search hero that lets users enter a job query and trigger a search.
+ *
+ * Typing in the input updates `searchQuery` via `setSearchQuery`; pressing Enter or clicking the Search button invokes `onSearch`.
+ *
+ * @param searchQuery - Current value of the search input
+ * @param setSearchQuery - Callback to update the search input value
+ * @param onSearch - Callback invoked to perform the search action
+ * @returns A JSX element containing the search UI (icon, title, input, and action button)
+ */
 export function SearchView({
   searchQuery,
   setSearchQuery,

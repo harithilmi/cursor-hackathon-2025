@@ -21,6 +21,16 @@ interface GeneratorViewProps {
   onBack: () => void;
 }
 
+/**
+ * Render a generator UI that simulates content generation then displays generated resume, cover letter, and LaTeX outputs populated from the provided job and user data.
+ *
+ * The component shows a progressive loading state (with animated progress and step indicators) while generating content, then presents a two-column layout containing job context, AI strategy, and a tabbed output area with "PDF Preview", "Cover Letter", and "LaTeX" views. The active tab can be switched and a provided back callback is invoked when the Back action is triggered.
+ *
+ * @param job - Job data used to populate the preview, cover letter, and LaTeX templates (title, company, keywords, tags, location, description, risk metadata, and application link)
+ * @param userDump - Freeform user data string used to tailor generated content
+ * @param onBack - Callback invoked when the Back button is clicked
+ * @returns The React element tree for the generator view
+ */
 export function GeneratorView({ job, userDump, onBack }: GeneratorViewProps) {
   const [activeTab, setActiveTab] = useState<"preview" | "latex" | "cover">(
     "preview",

@@ -5,6 +5,14 @@ interface LoginViewProps {
   onLogin: () => void;
 }
 
+/**
+ * Render a centered login view with brand header, a "Continue with Google" action, and a "Powered by Convex" badge.
+ *
+ * The primary button calls the provided callback when activated.
+ *
+ * @param onLogin - Callback invoked when the user activates the "Continue with Google" button.
+ * @returns The React element for the login screen.
+ */
 export function LoginView({ onLogin }: LoginViewProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh]">
