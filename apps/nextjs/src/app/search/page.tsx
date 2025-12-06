@@ -38,6 +38,18 @@ export default function SearchPage() {
       setIsSearching(true);
       setProgress(0);
 
+      // Simulate realistic progress during the scraping process
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          // Slow down as we get closer to 90%
+          if (prev < 20) return prev + 2;
+          if (prev < 40) return prev + 1.5;
+          if (prev < 60) return prev + 1;
+          if (prev < 85) return prev + 0.5;
+          return prev; // Stop at 85%, wait for actual completion
+        });
+      }, 1000);
+
       // Get or create user in Convex
       const userId = await getOrCreateUser({
         clerkId: user.id,
@@ -59,6 +71,7 @@ export default function SearchPage() {
         }),
       });
 
+      clearInterval(progressInterval);
       setProgress(90);
 
       if (!response.ok) {
@@ -74,8 +87,10 @@ export default function SearchPage() {
         localStorage.setItem("kerjaflow_search", searchQuery);
       }
 
-      // Navigate to results page
-      router.push("/results");
+      // Small delay to show 100% completion
+      setTimeout(() => {
+        router.push("/results");
+      }, 500);
     } catch (error) {
       console.error("Failed to search jobs:", error);
       alert("Failed to search jobs. Please try again.");

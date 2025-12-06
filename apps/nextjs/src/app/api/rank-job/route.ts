@@ -79,7 +79,7 @@ export async function POST(request: Request) {
         "anthropic-beta": "structured-outputs-2025-11-13",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5",
+        model: "claude-sonnet-4-5",
         max_tokens: 2048,
         temperature: 0.3,
         output_format: {
