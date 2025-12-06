@@ -1,11 +1,18 @@
 import { Database, Terminal } from "lucide-react";
 import { Button } from "@acme/ui/button";
+import { signIn } from "~/auth/client";
 
 interface LoginViewProps {
   onLogin: () => void;
 }
 
 export function LoginView({ onLogin }: LoginViewProps) {
+  const handleGoogleLogin = async () => {
+    await signIn.social({
+      provider: "google",
+      callbackURL: "/dump",
+    });
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh]">
       <div className="mb-8 p-6 border-2 border-foreground relative">
@@ -23,7 +30,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
       </div>
 
       <Button
-        onClick={onLogin}
+        onClick={handleGoogleLogin}
         variant="outline"
         size="lg"
         className="flex items-center gap-3"
