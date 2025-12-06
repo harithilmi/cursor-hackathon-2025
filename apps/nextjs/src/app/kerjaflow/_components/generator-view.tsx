@@ -109,11 +109,11 @@ export function GeneratorView({ job, userDump, onBack, userId }: GeneratorViewPr
 \\begin{document}
 
 \\section*{Candidate Name}
-\\textbf{Role Applied:} ${job.title} at ${job.company}
+\\textbf{Role Applied:} ${job.title || job.position} at ${job.company}
 
 \\section*{Professional Summary}
 Results-oriented professional with ${userDump.includes("4 years") ? "4 years" : "proven"} experience.
-Specific expertise in ${job.keywords?.slice(0, 2).join(" and ") || "relevant technologies"}, directly matching the requirements for the ${job.title} role.
+Specific expertise in ${job.keywords?.slice(0, 2).join(" and ") || "relevant technologies"}, directly matching the requirements for the ${job.title || job.position} role.
 
 \\section*{Relevant Experience}
 \\textbf{TechMy Sdn Bhd} \\hfill 2020--2022 \\\\
@@ -129,7 +129,7 @@ Specific expertise in ${job.keywords?.slice(0, 2).join(" and ") || "relevant tec
   const coverLetter = `
 Dear Hiring Manager at ${job.company},
 
-I am writing to express my strong interest in the ${job.title} position based in ${job.location}.
+I am writing to express my strong interest in the ${job.title || job.position} position based in ${job.location}.
 
 I noticed in the job description that ${job.company} values "${job.culture_raw || "innovation"}". This resonates with me because in my previous role, I always prioritized transparent communication and high-quality code delivery.
 
@@ -199,7 +199,7 @@ Sincerely,
         </button>
         <div className="flex items-center gap-3">
           <a
-            href={job.link}
+            href={job.link || job.url}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg shadow-sm font-bold transition-all"
@@ -216,7 +216,7 @@ Sincerely,
           <Card className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <div className="mb-4">
               <h1 className="text-xl font-bold text-slate-900 leading-tight mb-1">
-                {job.title}
+                {job.title || job.position}
               </h1>
               <p className="text-slate-500 font-medium">{job.company}</p>
             </div>

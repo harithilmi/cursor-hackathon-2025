@@ -37,7 +37,7 @@ export function JobCard({ job, fitScore, onClick }: JobCardProps) {
 
       <div className="pr-16">
         <h3 className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors line-clamp-1">
-          {job.title}
+          {job.title || job.position}
         </h3>
         <p className="text-slate-500 text-sm mb-3 font-medium">
           {job.company}
@@ -72,7 +72,7 @@ export function JobCard({ job, fitScore, onClick }: JobCardProps) {
           ))}
         </div>
         <div className="flex items-center text-indigo-600 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pl-2">
-          Generate <ChevronRight size={14} />
+          View Details <ChevronRight size={14} />
         </div>
       </div>
     </Card>

@@ -72,6 +72,7 @@ export async function POST(request: Request) {
               },
             },
             required: ["company", "position", "duration", "achievements"],
+            additionalProperties: false,
           },
         },
         skills: {
@@ -97,12 +98,14 @@ export async function POST(request: Request) {
               },
             },
             required: ["title", "content"],
+            additionalProperties: false,
           },
           description:
             "Optional sections like certifications, projects, or awards if relevant to the job",
         },
       },
       required: ["summary", "experience", "skills", "education"],
+      additionalProperties: false,
     };
 
     // Call Claude API with structured outputs
@@ -115,7 +118,7 @@ export async function POST(request: Request) {
         "anthropic-beta": "structured-outputs-2025-11-13",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5-20250924",
+        model: "claude-sonnet-4-5",
         max_tokens: 4096,
         temperature: 0.5,
         output_format: {

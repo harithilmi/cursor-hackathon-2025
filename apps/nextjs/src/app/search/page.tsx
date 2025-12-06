@@ -16,7 +16,6 @@ export default function SearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const saveJobs = useMutation(api.jobs.saveJobs);
   const getOrCreateUser = useMutation(api.users.getOrCreateUser);
 
   const convexUser = useQuery(
@@ -48,41 +47,25 @@ export default function SearchPage() {
 
       setProgress(10);
 
-      // Call the search-jobs API endpoint
+      // Call the search-jobs API endpoint (it will save to Convex)
       const response = await fetch("/api/search-jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ searchTerm: searchQuery }),
+        body: JSON.stringify({
+          searchTerm: searchQuery,
+          userId: userId,
+        }),
       });
 
-      setProgress(70);
+      setProgress(90);
 
       if (!response.ok) {
         throw new Error("Failed to search jobs");
       }
 
       const data = await response.json();
-      const jobs = data.jobs || [];
-
-      setProgress(80);
-
-      // Save jobs to Convex
-      if (jobs.length > 0) {
-        await saveJobs({
-          userId,
-          searchTerm: searchQuery,
-          jobs: jobs.map((job: any) => ({
-            position: job.position,
-            company: job.company,
-            location: job.location,
-            description: job.description,
-            salary: job.salary || undefined,
-            url: job.url,
-          })),
-        });
-      }
 
       setProgress(100);
 

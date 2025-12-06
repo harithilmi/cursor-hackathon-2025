@@ -51,9 +51,7 @@ export async function POST(request: Request) {
           type: "array",
           items: { type: "string" },
           description:
-            "2-3 body paragraphs that highlight relevant experience, skills, and why the candidate is a great fit",
-          minItems: 2,
-          maxItems: 3,
+            "2-3 body paragraphs that highlight relevant experience, skills, and why the candidate is a great fit. Must include at least 2 paragraphs.",
         },
         closing: {
           type: "string",
@@ -67,6 +65,7 @@ export async function POST(request: Request) {
         },
       },
       required: ["opening", "bodyParagraphs", "closing", "fullText"],
+      additionalProperties: false,
     };
 
     // Call Claude API with structured outputs
@@ -79,7 +78,7 @@ export async function POST(request: Request) {
         "anthropic-beta": "structured-outputs-2025-11-13",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5-20250924",
+        model: "claude-sonnet-4-5",
         max_tokens: 3072,
         temperature: 0.7,
         output_format: {
