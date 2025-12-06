@@ -2,43 +2,45 @@
 
 > A smart job application assistant for Malaysian job seekers powered by AI
 
-KerjaFlow is a web application that helps you find, rank, and apply to jobs from Malaysian job sites (Hiredly only for now). It scrapes job listings, ranks them based on how well they match your resume, and helps you tailor your resume and cover letter for each specific job. Generate professional resume PDFs with LaTeX and AI-written cover letters.
+KerjaFlow is a web application that helps you find, rank, and apply to jobs from Malaysian job sites (Hiredly only for now). It scrapes job listings, ranks them based on how well they match your resume, and helps you tailor your resume and cover letter for each specific job. Generate professional resume PDFs and AI-written cover letters.
 
 ## Features
 
 ### Core Features
-- 🔍 **Job Scraping** - Automatically scrape job listings from Hiredly
-- 🤖 **AI-Powered Ranking** - Rank jobs based on how well they match your resume
-- 📄 **Custom Resume Generation** - Generate tailored resumes for each job using PDFLaTeX
-- ✉️ **Cover Letter Writing** - AI-generated cover letters based on your input and the job description
-- 🔗 **Direct Application Links** - One-click access to apply on the original job site
+- 🔍 **Job Scraping** - Automatically scrape job listings from Hiredly using Apify
+- 🤖 **AI-Powered Ranking** - Real-time parallel job ranking with fit scores (0-100%)
+- 📄 **Master Dump Resume** - Paste your entire career history once, we tailor it for each job
+- ✨ **Custom Resume Generation** - AI generates tailored resumes highlighting relevant experience
+- ✉️ **Cover Letter Writing** - AI-generated cover letters based on job requirements
+- 📥 **PDF Export** - Download professional resume PDFs
+- 🔗 **Direct Application Links** - One-click access to apply on Hiredly
+- ⚡ **Real-time Updates** - Live progress tracking for scraping and ranking via Convex
 
-### Future Enhancements (If More Time)
-- 🚩 **Red Flags Detection** - Identify potentially problematic job postings
-- 🎯 **BS Detector** - Detect misleading or exaggerated job descriptions
+### UI/UX
+- 🌙 **Dark Glassmorphism Theme** - Modern dark UI with glass effects and gradient accents
+- 📊 **Live Progress Tracking** - Visual milestones during job scraping
+- 🎯 **Match Indicators** - Color-coded fit scores (green for high match, indigo for medium)
 
 ## User Flow
 
-1. **Landing Page** - Learn about KerjaFlow features
-2. **Login with Google** - Sign in with Google authentication
-3. **Upload Resume** - Paste your "dump" resume (all your experiences), upload a file, or skip
-4. **Dashboard** - Navigate to your personalized dashboard
-5. **Job Search** - Input job title (e.g., "react developer")
-6. **View Rankings** - Jobs automatically ranked according to your resume fit
-7. **Generate Resume** - Create a customized resume PDF for each specific job
-8. **Write Cover Letter** - Generate tailored cover letters (optional)
-9. **Apply** - Click the link to the job site to submit your application
+1. **Landing Page** - Sign in with Google via Clerk
+2. **Master Dump** - Paste your entire career history (skills, experience, projects)
+3. **Job Search** - Enter job title (e.g., "Frontend Developer")
+4. **Scraping** - Watch real-time progress as jobs are scraped from Hiredly
+5. **AI Ranking** - Jobs automatically ranked by fit score with reasoning
+6. **View Results** - Browse ranked jobs with match percentages
+7. **Generate Documents** - Create tailored resume and cover letter for selected job
+8. **Download & Apply** - Export PDF and apply via Hiredly link
 
 ## Tech Stack
 
-- **Next.js** - React framework with App Router
-- **Convex** - Backend platform for real-time data and serverless functions
-- **Claude Sonnet 4.5** - AI for resume and cover letter generation/tailoring
-- **Apify** - Web scraping platform for job listings
-- **Tailwind CSS** - Styling
-- **TypeScript** - Type safety
-- **Better Auth** - Google OAuth authentication
-- **PDFLaTeX** - Professional resume PDF generation
+- **Next.js 16** - React framework with App Router
+- **Convex** - Real-time backend with live subscriptions
+- **Clerk** - Google OAuth authentication
+- **Claude Sonnet** - AI for ranking, resume tailoring, and cover letters
+- **Apify** - Cloud web scraping for job listings
+- **Tailwind CSS** - Dark glassmorphism styling
+- **TypeScript** - Type safety throughout
 
 ## Installation
 
@@ -46,9 +48,9 @@ KerjaFlow is a web application that helps you find, rank, and apply to jobs from
 - Node.js 22+
 - pnpm package manager
 - Apify account (for job scraping)
-- Anthropic API key (for Claude Sonnet 4.5)
+- Anthropic API key (for Claude)
 - Convex account (for backend)
-- PDFLaTeX installed (for resume PDF generation)
+- Clerk account (for authentication)
 
 ### Setup
 
@@ -73,20 +75,16 @@ KerjaFlow is a web application that helps you find, rank, and apply to jobs from
    # Apify
    APIFY_API_TOKEN=your_apify_token
 
-   # Anthropic Claude Sonnet 4.5
+   # Anthropic Claude
    ANTHROPIC_API_KEY=your_anthropic_key
 
    # Convex
    CONVEX_DEPLOYMENT=your_convex_deployment
    NEXT_PUBLIC_CONVEX_URL=your_convex_url
 
-   # Authentication
-   BETTER_AUTH_SECRET=your_secret
-   BETTER_AUTH_URL=http://localhost:3000
-
-   # Google OAuth
-   GOOGLE_CLIENT_ID=your_google_client_id
-   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   # Clerk Authentication
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+   CLERK_SECRET_KEY=your_clerk_secret_key
    ```
 
 4. **Set up Convex**
@@ -94,12 +92,7 @@ KerjaFlow is a web application that helps you find, rank, and apply to jobs from
    npx convex dev
    ```
 
-5. **Generate Better Auth schema**
-   ```bash
-   pnpm --filter @acme/auth generate
-   ```
-
-6. **Start development server**
+5. **Start development server**
    ```bash
    pnpm dev:next
    ```
@@ -111,23 +104,42 @@ KerjaFlow is a web application that helps you find, rank, and apply to jobs from
 ```text
 .
 ├── apps/
-│   └── nextjs/          # Next.js web application
+│   └── nextjs/                    # Next.js web application
 │       └── src/
 │           └── app/
 │               ├── api/
-│               │   └── search-jobs/  # Job scraping API endpoint
-│               ├── jobs/             # Job search and listing pages
-│               └── dashboard/        # User dashboard
-├── my-actor/            # Apify Actor for web scraping
+│               │   ├── search-jobs/        # Job scraping endpoint
+│               │   ├── rank-job/           # AI job ranking endpoint
+│               │   ├── generate-resume/    # Resume generation endpoint
+│               │   ├── generate-cover-letter/  # Cover letter endpoint
+│               │   └── generate-pdf/       # PDF export endpoint
+│               ├── kerjaflow/
+│               │   └── _components/        # UI components
+│               │       ├── login-view.tsx
+│               │       ├── search-view.tsx
+│               │       ├── results-view.tsx
+│               │       ├── job-card.tsx
+│               │       ├── generator-view.tsx
+│               │       └── resume-dump-view.tsx
+│               ├── dump/                   # Master dump page
+│               ├── search/                 # Job search page
+│               ├── results/                # Results page
+│               ├── jobs/[jobId]/           # Job details page
+│               └── generate/               # Document generator page
+├── my-actor/                      # Apify Actor for web scraping
 │   └── src/
-│       └── main.ts      # Scraper with Claude structured outputs
-├── convex/              # Convex backend functions
-│   ├── jobs.ts          # Job-related functions
-│   ├── resumes.ts       # Resume management
-│   └── users.ts         # User data
+│       └── main.ts                # Scraper with Claude structured outputs
+├── convex/                        # Convex backend functions
+│   ├── jobs.ts                    # Job listing management
+│   ├── rankings.ts                # AI ranking storage
+│   ├── resumes.ts                 # Resume management
+│   ├── users.ts                   # User data
+│   └── schema.ts                  # Database schema
+├── tooling/
+│   └── tailwind/
+│       └── theme.css              # Dark theme CSS variables
 └── packages/
-    ├── auth/            # Better Auth with Google OAuth
-    └── ui/              # Shared UI components
+    └── ui/                        # Shared UI components
 ```
 
 ## How It Works
@@ -139,22 +151,26 @@ KerjaFlow is a web application that helps you find, rank, and apply to jobs from
 3. **Apify Actor** (running in cloud):
    - Navigates to Hiredly job listings
    - Extracts job detail pages
-   - Uses Claude AI with structured outputs to parse:
-     - Position name
-     - Company name
-     - Location
-     - Full job description
-     - Salary (if available)
-4. **Results returned** to Next.js app
-5. **Jobs displayed** with AI-powered ranking
+   - Uses Claude AI with structured outputs to parse job data
+4. **Jobs saved** to Convex database
+5. **Real-time updates** pushed to client via Convex subscriptions
 
-### AI-Powered Features (Claude Sonnet 4.5)
+### AI Ranking Pipeline
 
-- **Structured Outputs** - Claude's beta feature ensures 100% valid JSON extraction from job listings
-- **Job Ranking** - Analyzes your "dump" resume against job requirements and ranks by fit score
-- **Resume Tailoring** - Generates custom resumes highlighting relevant experience for each specific job
-- **Cover Letter Writing** - Creates personalized, professional cover letters based on your input
-- **PDF Generation** - Converts tailored resumes to professional PDFs using LaTeX
+1. **Jobs fetched** from Convex after scraping completes
+2. **Parallel ranking** - Multiple jobs ranked simultaneously
+3. **Claude analyzes** each job against user's master dump resume
+4. **Fit scores** (0-100%) calculated with reasoning
+5. **Rankings saved** to Convex, UI updates in real-time
+6. **Results sorted** by fit score (highest first)
+
+### AI-Powered Features (Claude Sonnet)
+
+- **Structured Outputs** - 100% valid JSON extraction from job listings
+- **Job Ranking** - Fit score with key strengths and potential challenges
+- **Resume Tailoring** - AI rewrites experience to match job requirements
+- **Cover Letter Writing** - Personalized letters based on job description
+- **PDF Generation** - Professional resume PDFs for download
 
 ## Development
 
@@ -185,38 +201,36 @@ pnpm test
 ## API Endpoints
 
 ### POST `/api/search-jobs`
+Search and scrape jobs from Hiredly, save to Convex.
 
-Search and scrape jobs from Hiredly.
-
-**Request:**
-```json
-{
-  "searchTerm": "software engineer"
-}
-```
+### POST `/api/rank-job`
+Rank a single job against user's resume using Claude AI.
 
 **Response:**
 ```json
 {
-  "jobs": [
-    {
-      "url": "https://...",
-      "position": "Software Engineer",
-      "company": "Company Name",
-      "location": "Kuala Lumpur, Malaysia",
-      "description": "Full job description...",
-      "salary": "RM 5,000 - RM 8,000"
-    }
-  ],
-  "totalFound": 5
+  "fitScore": 85,
+  "reasoning": "Strong match due to...",
+  "keyStrengths": ["React experience", "Team leadership"],
+  "potentialChallenges": ["No Go experience mentioned"]
 }
 ```
 
+### POST `/api/generate-resume`
+Generate tailored resume content using Claude AI.
+
+### POST `/api/generate-cover-letter`
+Generate personalized cover letter using Claude AI.
+
+### POST `/api/generate-pdf`
+Export resume as PDF document.
+
 ## Performance
 
-- **Job scraping**: ~5-10 minutes for 5 jobs (includes AI parsing)
+- **Job scraping**: ~1-2 minutes for 5 jobs (includes AI parsing)
+- **AI ranking**: Parallel processing, ~5-10 seconds per job
+- **Real-time updates**: Instant UI updates via Convex subscriptions
 - **Structured outputs**: 100% valid JSON, no retries needed
-- **Rate limiting**: Handles Hiredly's rate limits gracefully
 
 ## Contributing
 
