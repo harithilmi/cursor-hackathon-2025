@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { cn } from "@acme/ui";
-import { ThemeProvider, ThemeToggle } from "@acme/ui/theme";
+import { ThemeProvider } from "@acme/ui/theme";
 import { Toaster } from "@acme/ui/toast";
 
 import { env } from "~/env";
@@ -58,12 +58,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           geistMono.variable,
         )}
       >
-        <ThemeProvider>
+        <ThemeProvider defaultTheme="light" forcedTheme="light">
           <ConvexClientProvider>
             <TRPCReactProvider>{props.children}</TRPCReactProvider>
-            <div className="absolute right-4 bottom-4">
-              <ThemeToggle />
-            </div>
             <Toaster />
           </ConvexClientProvider>
         </ThemeProvider>
