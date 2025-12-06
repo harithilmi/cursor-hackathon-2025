@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LoginView } from "./kerjaflow/_components/login-view";
-import { StatusFooter } from "./kerjaflow/_components/status-footer";
+import { LoginView } from "./_components/login-view";
+import { StatusFooter } from "./_components/status-footer";
 
-export default function HomePage() {
+export default function KerjaFlowLoginPage() {
   const router = useRouter();
 
   const handleLogin = () => {
