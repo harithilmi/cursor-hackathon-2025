@@ -36,8 +36,8 @@ export function CreatePostForm() {
       onError: (err) => {
         toast.error(
           err.data?.code === "UNAUTHORIZED"
-            ? "You must be logged in to post"
-            : "Failed to create post",
+            ? "You must be logged in to create a todo"
+            : "Failed to create todo",
         );
       },
     }),
@@ -71,7 +71,7 @@ export function CreatePostForm() {
             return (
               <Field data-invalid={isInvalid}>
                 <FieldContent>
-                  <FieldLabel htmlFor={field.name}>Bug Title</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Task</FieldLabel>
                 </FieldContent>
                 <Input
                   id={field.name}
@@ -80,7 +80,7 @@ export function CreatePostForm() {
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
-                  placeholder="Title"
+                  placeholder="What needs to be done?"
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -95,7 +95,7 @@ export function CreatePostForm() {
             return (
               <Field data-invalid={isInvalid}>
                 <FieldContent>
-                  <FieldLabel htmlFor={field.name}>Content</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Description</FieldLabel>
                 </FieldContent>
                 <Input
                   id={field.name}
@@ -104,7 +104,7 @@ export function CreatePostForm() {
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   aria-invalid={isInvalid}
-                  placeholder="Content"
+                  placeholder="Add details (optional)"
                 />
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
@@ -112,7 +112,7 @@ export function CreatePostForm() {
           }}
         />
       </FieldGroup>
-      <Button type="submit">Create</Button>
+      <Button type="submit">Add Todo</Button>
     </form>
   );
 }
@@ -129,7 +129,7 @@ export function PostList() {
         <PostCardSkeleton pulse={false} />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10">
-          <p className="text-2xl font-bold text-white">No posts yet</p>
+          <p className="text-2xl font-bold text-white">No todos yet</p>
         </div>
       </div>
     );
@@ -157,8 +157,8 @@ export function PostCard(props: {
       onError: (err) => {
         toast.error(
           err.data?.code === "UNAUTHORIZED"
-            ? "You must be logged in to delete a post"
-            : "Failed to delete post",
+            ? "You must be logged in to delete a todo"
+            : "Failed to delete todo",
         );
       },
     }),
