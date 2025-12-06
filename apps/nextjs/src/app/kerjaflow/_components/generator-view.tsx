@@ -20,9 +20,11 @@ interface GeneratorViewProps {
   userDump: string;
   onBack: () => void;
   userId?: any;
+  userName?: string;
+  userEmail?: string;
 }
 
-export function GeneratorView({ job, userDump, onBack, userId }: GeneratorViewProps) {
+export function GeneratorView({ job, userDump, onBack, userId, userName, userEmail }: GeneratorViewProps) {
   const [activeTab, setActiveTab] = useState<"preview" | "latex" | "cover">(
     "preview",
   );
@@ -31,6 +33,7 @@ export function GeneratorView({ job, userDump, onBack, userId }: GeneratorViewPr
   const [generatedResume, setGeneratedResume] = useState<any>(null);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     generateDocuments();
@@ -95,6 +98,57 @@ export function GeneratorView({ job, userDump, onBack, userId }: GeneratorViewPr
       console.error("Error generating documents:", err);
       setError(err instanceof Error ? err.message : "Failed to generate documents");
       setIsGenerating(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!generatedResume || !userName || !userEmail) {
+      alert("Resume data not ready. Please wait for generation to complete.");
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+
+      const response = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userName,
+          userEmail,
+          summary: generatedResume.summary,
+          experience: generatedResume.experience,
+          skills: generatedResume.skills,
+          education: generatedResume.education,
+          additionalSections: generatedResume.additionalSections,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate PDF");
+      }
+
+      // Convert response to blob
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `resume-${userName.replace(/\s+/g, "-")}-${job.company}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Error downloading PDF:", err);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -307,8 +361,13 @@ Sincerely,
                 <FileCode size={14} /> LaTeX Source
               </button>
             </div>
-            <button className="text-emerald-400 text-xs font-bold flex items-center gap-2 hover:text-emerald-300">
-              <Download size={14} /> Download PDF
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading || isGenerating}
+              className="text-emerald-400 text-xs font-bold flex items-center gap-2 hover:text-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download size={14} className={isDownloading ? "animate-bounce" : ""} />
+              {isDownloading ? "Generating PDF..." : "Download PDF"}
             </button>
           </div>
 
@@ -318,14 +377,16 @@ Sincerely,
               <div className="max-w-[210mm] mx-auto p-12 bg-white min-h-full shadow-lg">
                 <div className="text-center border-b-2 border-gray-800 pb-6 mb-6">
                   <h2 className="text-3xl font-bold uppercase tracking-widest text-gray-900">
-                    Demo User
+                    {userName || "Your Name"}
                   </h2>
                   <div className="text-sm text-gray-600 mt-2 flex justify-center gap-4">
-                    <span>Subang Jaya, Malaysia</span>
-                    <span>•</span>
-                    <span>candidate@email.com</span>
-                    <span>•</span>
-                    <span>linkedin.com/in/demouser</span>
+                    <span>Malaysia</span>
+                    {userEmail && (
+                      <>
+                        <span>•</span>
+                        <span>{userEmail}</span>
+                      </>
+                    )}
                   </div>
                 </div>
 

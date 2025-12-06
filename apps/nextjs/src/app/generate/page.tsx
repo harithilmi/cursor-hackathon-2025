@@ -65,6 +65,8 @@ export default function GeneratePage() {
           userDump={userDump}
           onBack={handleBack}
           userId={convexUser?._id}
+          userName={user?.fullName || user?.firstName || ""}
+          userEmail={user?.primaryEmailAddress?.emailAddress || ""}
         />
       </main>
       <StatusFooter />
