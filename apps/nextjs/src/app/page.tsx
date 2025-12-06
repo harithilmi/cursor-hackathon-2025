@@ -3,6 +3,7 @@
 import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { LoginView } from "./kerjaflow/_components/login-view";
 import { StatusFooter } from "./kerjaflow/_components/status-footer";
 
@@ -12,8 +13,8 @@ export default function HomePage() {
 
   if (!loaded) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-slate-500">Loading...</div>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-brand-400 animate-spin" />
       </div>
     );
   }
@@ -24,7 +25,7 @@ export default function HomePage() {
         <RedirectToDump />
       </SignedIn>
       <SignedOut>
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8">
+        <div className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-8">
           <main className="px-6">
             <LoginView />
           </main>
@@ -43,8 +44,8 @@ function RedirectToDump() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="text-slate-500">Redirecting...</div>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-brand-400 animate-spin" />
     </div>
   );
 }

@@ -49,16 +49,16 @@ export default function GeneratePage() {
 
   if (!selectedJob || !userDump) {
     return (
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-8 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-slate-500 mb-4">Loading job details...</p>
+          <p className="text-slate-400 mb-4">Loading job details...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-8">
       <main className="px-6 py-8">
         <GeneratorView
           job={selectedJob}

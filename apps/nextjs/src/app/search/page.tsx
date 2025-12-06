@@ -100,7 +100,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-8">
       <Header currentView="search" />
       <main className="px-6 py-8">
         <SearchView
