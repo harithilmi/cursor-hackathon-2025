@@ -14,21 +14,23 @@ import "~/app/styles.css";
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
-      ? "https://turbo.t3.gg"
+      ? "https://kerjaflow.vercel.app"
       : "http://localhost:3000",
   ),
-  title: "Create T3 Turbo",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: "KerjaFlow",
+  description:
+    "A smart job application assistant for Malaysian job seekers powered by AI",
   openGraph: {
-    title: "Create T3 Turbo",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://create-t3-turbo.vercel.app",
-    siteName: "Create T3 Turbo",
+    title: "KerjaFlow",
+    description:
+      "A smart job application assistant for Malaysian job seekers powered by AI",
+    url: "https://kerjaflow.vercel.app",
+    siteName: "KerjaFlow",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    site: "@kerjaflow",
+    creator: "@kerjaflow",
   },
 };
 
