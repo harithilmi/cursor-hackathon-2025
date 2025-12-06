@@ -12,6 +12,7 @@ import { z, ZodError } from "zod/v4";
 
 import type { Auth } from "@acme/auth";
 import { db } from "@acme/db/client";
+import { ConvexHttpClient } from "convex/browser";
 
 /**
  * 1. CONTEXT
@@ -26,6 +27,12 @@ import { db } from "@acme/db/client";
  * @see https://trpc.io/docs/server/context
  */
 
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+if (!convexUrl) {
+  throw new Error("NEXT_PUBLIC_CONVEX_URL environment variable is required");
+}
+const convexClient = new ConvexHttpClient(convexUrl);
+
 export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: Auth;
@@ -38,6 +45,7 @@ export const createTRPCContext = async (opts: {
     authApi,
     session,
     db,
+    convex: convexClient,
   };
 };
 /**
