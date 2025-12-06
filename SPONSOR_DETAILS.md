@@ -12,7 +12,6 @@ This document contains detailed information about each sponsor track, including 
 - [LeanMCP](#leanmcp)
 - [Network School](#network-school)
 - [Hacker Residency Group](#hacker-residency-group)
-- [ElevenLabs](#elevenlabs)
 - [Cleve](#cleve)
 - [Lindy](#lindy)
 - [Groq](#groq)
@@ -194,23 +193,6 @@ The villa features 10 private bedrooms, a pool, dedicated workspace, and ocean v
 
 ## Need Help?
 Ask questions in the Discord channel
-
----
-
-# ElevenLabs
-
-## Track & Prize
-- **Track:** Best Use of Voice AI on ElevenLabs
-- **First Place:** 6 months Scale tier ($330 USD per month per team member)
-- **All Participants:** 1 month Pro coupon
-
-## About ElevenLabs
-ElevenLabs is an AI audio research and deployment company specializing in voice AI technology. Their platform offers state-of-the-art text-to-speech, speech-to-text, voice cloning, dubbing, sound effects generation, and voice agents. With models supporting 70+ languages, ultra-low latency (as low as 75ms), and emotionally rich speech synthesis, ElevenLabs makes it easy to add lifelike voice capabilities to your applications. From converting text into natural-sounding speech to deploying intelligent voice agents in minutes, ElevenLabs provides the tools to build immersive audio experiences.
-
-## Get Started
-- [Developer Quickstart](https://elevenlabs.io/docs/quickstart): Learn how to integrate ElevenLabs into your project
-- [Next.js Starter Template](https://github.com/elevenlabs/elevenlabs-nextjs-starter): Get started quickly with a pre-built template
-- [Models Overview](https://elevenlabs.io/docs/models): Explore Eleven v3, Flash v2.5, Turbo v2.5, and Scribe models
 
 ---
 
