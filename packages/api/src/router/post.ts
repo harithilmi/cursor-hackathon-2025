@@ -1,34 +1,34 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
-
-import { desc, eq } from "@acme/db";
-import { CreatePostSchema, Post } from "@acme/db/schema";
+import { api } from "../../../../convex/_generated/api";
+import type { Id } from "../../../../convex/_generated/dataModel";
 
 import { protectedProcedure, publicProcedure } from "../trpc";
 
 export const postRouter = {
-  all: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.Post.findMany({
-      orderBy: desc(Post.id),
-      limit: 10,
-    });
+  all: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.convex.query(api.posts.list);
   }),
 
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.query.Post.findFirst({
-        where: eq(Post.id, input.id),
-      });
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.convex.query(api.posts.list);
+      return posts.find((post) => post._id === input.id);
     }),
 
   create: protectedProcedure
-    .input(CreatePostSchema)
-    .mutation(({ ctx, input }) => {
-      return ctx.db.insert(Post).values(input);
+    .input(z.object({ title: z.string().min(1), content: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.convex.mutation(api.posts.create, {
+        title: input.title,
+        content: input.content,
+      });
     }),
 
-  delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
-    return ctx.db.delete(Post).where(eq(Post.id, input));
+  delete: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    return await ctx.convex.mutation(api.posts.deletePost, {
+      id: input as Id<"posts">,
+    });
   }),
 } satisfies TRPCRouterRecord;

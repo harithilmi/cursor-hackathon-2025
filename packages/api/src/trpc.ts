@@ -12,6 +12,7 @@ import { z, ZodError } from "zod/v4";
 
 import type { Auth } from "@acme/auth";
 import { db } from "@acme/db/client";
+import { ConvexHttpClient } from "convex/browser";
 
 /**
  * 1. CONTEXT
@@ -26,6 +27,8 @@ import { db } from "@acme/db/client";
  * @see https://trpc.io/docs/server/context
  */
 
+const convexClient = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 export const createTRPCContext = async (opts: {
   headers: Headers;
   auth: Auth;
@@ -38,6 +41,7 @@ export const createTRPCContext = async (opts: {
     authApi,
     session,
     db,
+    convex: convexClient,
   };
 };
 /**
