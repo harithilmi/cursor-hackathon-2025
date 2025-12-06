@@ -1,20 +1,10 @@
 "use client";
 
 import { Briefcase, Database } from "lucide-react";
+import { SignInButton } from "@clerk/nextjs";
 import { Button } from "@acme/ui/button";
-import { signIn } from "~/auth/client";
 
-interface LoginViewProps {
-  onLogin: () => void;
-}
-
-export function LoginView({ onLogin }: LoginViewProps) {
-  const handleGoogleLogin = async () => {
-    await signIn.social({
-      provider: "google",
-      callbackURL: "/dump",
-    });
-  };
+export function LoginView() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] animate-in fade-in zoom-in duration-500">
       <div className="mb-8 p-6 bg-indigo-100 rounded-full shadow-lg relative group">
@@ -31,19 +21,20 @@ export function LoginView({ onLogin }: LoginViewProps) {
         filter.
       </p>
 
-      <Button
-        onClick={handleGoogleLogin}
-        variant="outline"
-        size="lg"
-        className="flex items-center gap-3 px-8 py-4 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:border-indigo-300"
-      >
-        <img
-          src="https://www.google.com/favicon.ico"
-          alt="G"
-          className="w-5 h-5"
-        />
-        Continue with Google
-      </Button>
+      <SignInButton mode="modal" forceRedirectUrl="/dump">
+        <Button
+          variant="outline"
+          size="lg"
+          className="flex items-center gap-3 px-8 py-4 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:border-indigo-300"
+        >
+          <img
+            src="https://www.google.com/favicon.ico"
+            alt="G"
+            className="w-5 h-5"
+          />
+          Continue with Google
+        </Button>
+      </SignInButton>
       <div className="mt-8 flex gap-2 text-xs text-slate-400 font-mono bg-slate-100 px-3 py-1 rounded-full">
         <Database size={12} /> Powered by Convex
       </div>

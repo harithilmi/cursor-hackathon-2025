@@ -15,13 +15,13 @@ export interface Job {
   company: string;
   location: string;
   salary: string;
-  tags: string[];
+  tags?: string[];
   description: string;
-  keywords: string[];
-  culture_raw: string;
-  red_flags: string[];
+  keywords?: string[];
+  culture_raw?: string;
+  red_flags?: string[];
   link: string;
-  risk_level: "Safe" | "Moderate" | "High Risk";
+  risk_level?: "Safe" | "Moderate" | "High Risk";
 }
 
 export const MOCK_JOBS: Job[] = [

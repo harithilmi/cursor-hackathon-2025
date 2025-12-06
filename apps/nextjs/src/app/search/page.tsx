@@ -2,19 +2,103 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "~/convex/_generated/api";
 import { SearchView } from "../kerjaflow/_components/search-view";
 import { StatusFooter } from "../kerjaflow/_components/status-footer";
 import { Header } from "../kerjaflow/_components/header";
 
 export default function SearchPage() {
   const router = useRouter();
+  const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  const handleSearch = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("kerjaflow_search", searchQuery);
+  const saveJobs = useMutation(api.jobs.saveJobs);
+  const getOrCreateUser = useMutation(api.users.getOrCreateUser);
+
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
+  );
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      alert("Please enter a search term");
+      return;
     }
-    router.push("/results");
+
+    if (!user) {
+      alert("Please sign in to search for jobs");
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      setProgress(0);
+
+      // Get or create user in Convex
+      const userId = await getOrCreateUser({
+        clerkId: user.id,
+        email: user.primaryEmailAddress?.emailAddress || "",
+        name: user.fullName || undefined,
+      });
+
+      setProgress(10);
+
+      // Call the search-jobs API endpoint
+      const response = await fetch("/api/search-jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ searchTerm: searchQuery }),
+      });
+
+      setProgress(70);
+
+      if (!response.ok) {
+        throw new Error("Failed to search jobs");
+      }
+
+      const data = await response.json();
+      const jobs = data.jobs || [];
+
+      setProgress(80);
+
+      // Save jobs to Convex
+      if (jobs.length > 0) {
+        await saveJobs({
+          userId,
+          searchTerm: searchQuery,
+          jobs: jobs.map((job: any) => ({
+            position: job.position,
+            company: job.company,
+            location: job.location,
+            description: job.description,
+            salary: job.salary || undefined,
+            url: job.url,
+          })),
+        });
+      }
+
+      setProgress(100);
+
+      // Save to localStorage as fallback
+      if (typeof window !== "undefined") {
+        localStorage.setItem("kerjaflow_search", searchQuery);
+      }
+
+      // Navigate to results page
+      router.push("/results");
+    } catch (error) {
+      console.error("Failed to search jobs:", error);
+      alert("Failed to search jobs. Please try again.");
+      setIsSearching(false);
+      setProgress(0);
+    }
   };
 
   return (
@@ -25,6 +109,8 @@ export default function SearchPage() {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onSearch={handleSearch}
+          isLoading={isSearching}
+          progress={progress}
         />
       </main>
       <StatusFooter />
