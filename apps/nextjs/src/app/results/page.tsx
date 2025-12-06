@@ -149,10 +149,8 @@ export default function ResultsPage() {
   };
 
   const handleJobSelect = (job: RankedJob) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("kerjaflow_selected_job", JSON.stringify(job));
-    }
-    router.push("/generate");
+    // Navigate to job details page with jobId
+    router.push(`/jobs/${job._id}`);
   };
 
   const handleModifySearch = () => {

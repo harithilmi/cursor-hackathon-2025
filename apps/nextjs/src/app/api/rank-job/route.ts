@@ -66,6 +66,7 @@ export async function POST(request: Request) {
         },
       },
       required: ["fitScore", "reasoning", "keyStrengths", "potentialChallenges"],
+      additionalProperties: false,
     };
 
     // Call Claude API with structured outputs
@@ -75,13 +76,16 @@ export async function POST(request: Request) {
         "Content-Type": "application/json",
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
-        "anthropic-beta": "output-schemas-2025-10-31",
+        "anthropic-beta": "structured-outputs-2025-11-13",
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
         max_tokens: 2048,
         temperature: 0.3,
-        output_schema: schema,
+        output_format: {
+          type: "json_schema",
+          schema: schema,
+        },
         messages: [
           {
             role: "user",
@@ -121,7 +125,7 @@ Be honest and balanced in your assessment. A perfect fit would be 90-100, strong
     const data = await response.json();
 
     // Extract the structured output
-    const ranking: JobRanking = data.content[0].parsed;
+    const ranking: JobRanking = JSON.parse(data.content[0].text);
 
     return NextResponse.json(ranking);
   } catch (error) {

@@ -10,8 +10,10 @@ Language: English (Native), Malay (Fluent), Mandarin (Basic).
 `;
 
 export interface Job {
-  id: number;
-  title: string;
+  id?: number;
+  _id?: any;
+  title?: string;
+  position?: string;
   company: string;
   location: string;
   salary: string;
@@ -20,7 +22,8 @@ export interface Job {
   keywords?: string[];
   culture_raw?: string;
   red_flags?: string[];
-  link: string;
+  link?: string;
+  url?: string;
   risk_level?: "Safe" | "Moderate" | "High Risk";
 }
 
