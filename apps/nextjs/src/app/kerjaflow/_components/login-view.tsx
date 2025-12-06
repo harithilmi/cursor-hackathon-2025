@@ -2,7 +2,7 @@
 
 import { Briefcase, Database } from "lucide-react";
 import { SignInButton } from "@clerk/nextjs";
-import { Button } from "@acme/ui/button";
+import { Button } from "@kerjaflow/ui/button";
 
 export function LoginView() {
   return (

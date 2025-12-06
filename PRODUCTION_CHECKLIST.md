@@ -60,7 +60,7 @@
 ## Code Issues to Fix
 
 ### Missing Dependencies
-The `@acme/db` package has TypeScript errors:
+The `@kerjaflow/db` package has TypeScript errors:
 ```
 src/client.ts(1,22): error TS2307: Cannot find module 'postgres'
 src/schema.ts(3,36): error TS2307: Cannot find module 'drizzle-zod'
@@ -68,7 +68,7 @@ src/schema.ts(3,36): error TS2307: Cannot find module 'drizzle-zod'
 
 **Fix**: Since you're using Convex (not Postgres), you can either:
 1. Install missing packages: `cd packages/db && pnpm add postgres drizzle-zod`
-2. Remove the `@acme/db` package if not needed
+2. Remove the `@kerjaflow/db` package if not needed
 
 ## Testing
 

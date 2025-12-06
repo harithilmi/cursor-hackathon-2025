@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { cn } from "@acme/ui"
+import { cn } from "@kerjaflow/ui"
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (

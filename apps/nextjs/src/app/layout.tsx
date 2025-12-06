@@ -2,11 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
-import { cn } from "@acme/ui";
-import { Toaster } from "@acme/ui/toast";
+import { cn } from "@kerjaflow/ui";
+import { Toaster } from "@kerjaflow/ui/toast";
 
 import { env } from "~/env";
-import { TRPCReactProvider } from "~/trpc/react";
 import { ConvexClientProvider } from "~/app/ConvexClientProvider";
 
 import "~/app/styles.css";
@@ -57,7 +56,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       >
         <ClerkProvider>
           <ConvexClientProvider>
-            <TRPCReactProvider>{props.children}</TRPCReactProvider>
+            {props.children}
             <Toaster />
           </ConvexClientProvider>
         </ClerkProvider>

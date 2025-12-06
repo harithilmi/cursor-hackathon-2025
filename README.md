@@ -96,7 +96,7 @@ KerjaFlow is a web application that helps you find, rank, and apply to jobs from
 
 5. **Generate Better Auth schema**
    ```bash
-   pnpm --filter @acme/auth generate
+   pnpm --filter @kerjaflow/auth generate
    ```
 
 6. **Start development server**

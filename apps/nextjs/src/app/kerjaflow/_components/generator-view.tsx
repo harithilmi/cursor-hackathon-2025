@@ -11,8 +11,8 @@ import {
   FileText,
   ShieldAlert,
 } from "lucide-react";
-import { Button } from "@acme/ui/button";
-import { Card } from "@acme/ui/card";
+import { Button } from "@kerjaflow/ui/button";
+import { Card } from "@kerjaflow/ui/card";
 import { calculateFit, type Job } from "../_lib/mock-data";
 
 interface GeneratorViewProps {

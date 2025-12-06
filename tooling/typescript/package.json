@@ -1,5 +1,5 @@
 {
-  "name": "@acme/tsconfig",
+  "name": "@kerjaflow/tsconfig",
   "private": true,
   "files": [
     "*.json"

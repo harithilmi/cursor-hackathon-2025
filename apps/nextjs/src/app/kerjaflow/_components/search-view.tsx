@@ -1,6 +1,6 @@
 import { Search, Zap, Loader2 } from "lucide-react";
-import { Button } from "@acme/ui/button";
-import { Input } from "@acme/ui/input";
+import { Button } from "@kerjaflow/ui/button";
+import { Input } from "@kerjaflow/ui/input";
 
 interface SearchViewProps {
   searchQuery: string;

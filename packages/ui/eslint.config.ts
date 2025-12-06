@@ -1,7 +1,7 @@
 import { defineConfig } from "eslint/config";
 
-import { baseConfig } from "@acme/eslint-config/base";
-import { reactConfig } from "@acme/eslint-config/react";
+import { baseConfig } from "@kerjaflow/eslint-config/base";
+import { reactConfig } from "@kerjaflow/eslint-config/react";
 
 export default defineConfig(
   {

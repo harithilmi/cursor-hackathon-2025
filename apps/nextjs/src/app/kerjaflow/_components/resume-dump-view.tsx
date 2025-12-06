@@ -1,7 +1,7 @@
 import { ChevronRight, FileText, UploadCloud } from "lucide-react";
-import { Button } from "@acme/ui/button";
-import { Textarea } from "@acme/ui/textarea";
-import { Card } from "@acme/ui/card";
+import { Button } from "@kerjaflow/ui/button";
+import { Textarea } from "@kerjaflow/ui/textarea";
+import { Card } from "@kerjaflow/ui/card";
 
 interface ResumeDumpViewProps {
   resume: string;

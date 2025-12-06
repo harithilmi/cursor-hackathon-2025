@@ -6,8 +6,8 @@ import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import { ArrowLeft, ExternalLink, Briefcase, MapPin, DollarSign, FileText } from "lucide-react";
-import { Button } from "@acme/ui/button";
-import { Card } from "@acme/ui/card";
+import { Button } from "@kerjaflow/ui/button";
+import { Card } from "@kerjaflow/ui/card";
 import { Header } from "../../kerjaflow/_components/header";
 import { StatusFooter } from "../../kerjaflow/_components/status-footer";
 

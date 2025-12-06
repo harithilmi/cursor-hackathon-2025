@@ -1,6 +1,6 @@
 import { AlertTriangle, Briefcase, ChevronRight, MapPin } from "lucide-react";
-import { Card } from "@acme/ui/card";
-import { Badge } from "@acme/ui/badge";
+import { Card } from "@kerjaflow/ui/card";
+import { Badge } from "@kerjaflow/ui/badge";
 import type { Job } from "../_lib/mock-data";
 
 interface JobCardProps {
