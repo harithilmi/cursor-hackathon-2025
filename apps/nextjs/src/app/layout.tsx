@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { cn } from "@acme/ui";
@@ -35,29 +35,41 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "white",
+  themeColor: "#020617",
 };
 
-const geistSans = Geist({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-geist-sans",
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
+  weight: ["400", "500"],
 });
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
         className={cn(
-          "bg-background text-foreground min-h-screen font-sans antialiased",
-          geistSans.variable,
-          geistMono.variable,
+          "bg-slate-950 text-slate-200 min-h-screen font-sans antialiased",
+          plusJakarta.variable,
+          jetbrainsMono.variable,
         )}
       >
-        <ClerkProvider>
+        <ClerkProvider
+          appearance={{
+            variables: {
+              colorBackground: "#1e293b",
+              colorText: "#e2e8f0",
+              colorPrimary: "#6366f1",
+              colorInputBackground: "#0f172a",
+              colorInputText: "#e2e8f0",
+            },
+          }}
+        >
           <ConvexClientProvider>
             <TRPCReactProvider>{props.children}</TRPCReactProvider>
             <Toaster />

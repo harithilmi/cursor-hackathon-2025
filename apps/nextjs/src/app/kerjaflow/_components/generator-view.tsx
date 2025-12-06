@@ -10,9 +10,9 @@ import {
   FileCode,
   FileText,
   ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@acme/ui/button";
-import { Card } from "@acme/ui/card";
 import { calculateFit, type Job } from "../_lib/mock-data";
 
 interface GeneratorViewProps {
@@ -195,31 +195,37 @@ Sincerely,
 [Candidate Name]
   `;
 
+  /* #region LOADING STATE */
   if (isGenerating) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh]">
-        <div className="w-64 bg-slate-200 rounded-full h-2 mb-8 overflow-hidden">
+      <div className="flex flex-col items-center justify-center min-h-[70vh] relative">
+        <div className="absolute top-[10%] left-[30%] w-[400px] h-[400px] bg-brand-600/10 blur-[100px] rounded-full pointer-events-none" />
+
+        <div className="w-64 bg-slate-800 rounded-full h-2 mb-8 overflow-hidden relative z-10">
           <div
-            className="bg-indigo-600 h-full transition-all duration-300 ease-out"
+            className="bg-gradient-to-r from-brand-500 to-accent-500 h-full transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
-          ></div>
+          />
         </div>
-        <div className="flex flex-col items-center space-y-4 animate-in fade-in slide-in-from-bottom-4">
-          <Cpu size={48} className="text-indigo-600 animate-pulse" />
-          <h2 className="text-2xl font-bold text-slate-800">
+        <div className="flex flex-col items-center space-y-4 animate-in fade-in slide-in-from-bottom-4 relative z-10">
+          <div className="relative">
+            <Cpu size={48} className="text-brand-400 animate-pulse" />
+            <div className="absolute inset-0 bg-brand-500 blur-xl opacity-30 animate-pulse" />
+          </div>
+          <h2 className="text-2xl font-bold text-white">
             Claude Sonnet is Thinking...
           </h2>
-          <div className="text-sm text-slate-500 font-mono flex flex-col items-center space-y-1">
-            <p className={progress > 20 ? "text-green-600" : "text-slate-400"}>
+          <div className="text-sm text-slate-400 font-mono flex flex-col items-center space-y-1">
+            <p className={progress > 20 ? "text-green-400" : "text-slate-500"}>
               ✓ Analyzing &quot;Master Dump&quot; vs Job Spec
             </p>
-            <p className={progress > 50 ? "text-green-600" : "text-slate-400"}>
+            <p className={progress > 50 ? "text-green-400" : "text-slate-500"}>
               ✓ Generating tailored resume...
             </p>
-            <p className={progress > 70 ? "text-green-600" : "text-slate-400"}>
+            <p className={progress > 70 ? "text-green-400" : "text-slate-500"}>
               ✓ Drafting Cover Letter
             </p>
-            <p className={progress > 90 ? "text-green-600" : "text-slate-400"}>
+            <p className={progress > 90 ? "text-green-400" : "text-slate-500"}>
               ✓ Finalizing documents...
             </p>
           </div>
@@ -227,27 +233,34 @@ Sincerely,
       </div>
     );
   }
+  /* #endregion */
 
+  /* #region ERROR STATE */
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh]">
         <div className="text-center">
-          <ShieldAlert size={48} className="text-red-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">Generation Failed</h2>
-          <p className="text-slate-600 mb-4">{error}</p>
-          <Button onClick={generateDocuments}>Try Again</Button>
+          <ShieldAlert size={48} className="text-red-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Generation Failed</h2>
+          <p className="text-slate-400 mb-4">{error}</p>
+          <Button onClick={generateDocuments} className="bg-brand-600 hover:bg-brand-500">Try Again</Button>
         </div>
       </div>
     );
   }
+  /* #endregion */
 
+  /* #region MAIN VIEW */
   return (
-    <div className="max-w-6xl mx-auto h-[85vh] flex flex-col animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto h-[85vh] flex flex-col animate-in fade-in duration-500 relative">
+      {/* Ambient Effects */}
+      <div className="absolute top-[-10%] right-[20%] w-[400px] h-[400px] bg-brand-600/5 blur-[100px] rounded-full pointer-events-none" />
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 relative z-10">
         <button
           onClick={onBack}
-          className="flex items-center text-slate-500 hover:text-slate-800 transition-colors"
+          className="flex items-center text-slate-400 hover:text-white transition-colors"
         >
           <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
         </button>
@@ -256,42 +269,42 @@ Sincerely,
             href={job.link || job.url}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg shadow-sm font-bold transition-all"
+            className="flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-900 px-5 py-2.5 rounded-xl shadow-lg font-bold transition-all"
           >
             Apply on Hiredly <ExternalLink size={16} />
           </a>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 h-full pb-8">
+      <div className="grid grid-cols-12 gap-6 h-full pb-8 relative z-10">
         {/* Left: Job Context */}
         <div className="col-span-12 md:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
           {/* Job Details Card */}
-          <Card className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="glass-card p-5 rounded-2xl">
             <div className="mb-4">
-              <h1 className="text-xl font-bold text-slate-900 leading-tight mb-1">
+              <h1 className="text-xl font-bold text-white leading-tight mb-1">
                 {job.title || job.position}
               </h1>
-              <p className="text-slate-500 font-medium">{job.company}</p>
+              <p className="text-slate-400 font-medium">{job.company}</p>
             </div>
 
-            <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex items-center justify-between mb-4">
-              <span className="text-xs font-bold text-green-700 uppercase">
-                Fit Score
+            <div className="bg-green-500/10 p-3 rounded-xl border border-green-500/20 flex items-center justify-between mb-4">
+              <span className="text-xs font-bold text-green-400 uppercase flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> Fit Score
               </span>
-              <span className="text-2xl font-black text-green-600">
+              <span className="text-2xl font-black text-green-400">
                 {calculateFit(job.keywords || [], userDump)}%
               </span>
             </div>
 
             {job.risk_level === "High Risk" && job.red_flags && (
-              <div className="bg-red-50 p-3 rounded-lg border border-red-100 mb-4">
-                <h4 className="flex items-center text-red-800 font-bold text-xs mb-1">
+              <div className="bg-red-500/10 p-3 rounded-xl border border-red-500/20 mb-4">
+                <h4 className="flex items-center text-red-400 font-bold text-xs mb-1">
                   <ShieldAlert size={12} className="mr-1" /> Caution: Red Flags
                 </h4>
                 <ul className="pl-4 list-disc space-y-0.5">
                   {job.red_flags.map((flag, idx) => (
-                    <li key={idx} className="text-[10px] text-red-700">
+                    <li key={idx} className="text-[10px] text-red-300">
                       {flag}
                     </li>
                   ))}
@@ -299,63 +312,63 @@ Sincerely,
               </div>
             )}
 
-            <div className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3 max-h-32 overflow-y-auto">
+            <div className="text-xs text-slate-400 leading-relaxed border-t border-slate-700/50 pt-3 max-h-32 overflow-y-auto">
               {job.description}
             </div>
-          </Card>
+          </div>
 
           {/* AI Insight Card */}
-          <Card className="bg-indigo-50 p-5 rounded-xl border border-indigo-100 flex-1 overflow-auto">
+          <div className="glass-panel p-5 rounded-2xl flex-1 overflow-auto border border-brand-500/20">
             <div className="flex items-center gap-2 mb-3">
-              <Cpu size={18} className="text-indigo-600" />
-              <h3 className="font-bold text-indigo-900 text-sm">
+              <Cpu size={18} className="text-brand-400" />
+              <h3 className="font-bold text-white text-sm">
                 Tailoring Strategy
               </h3>
             </div>
-            <p className="text-sm text-indigo-800 mb-2 leading-relaxed">
-              I&apos;ve rephrased your experience at <strong>TechMy</strong> to
-              highlight <strong>{job.tags?.[0] || "relevant skills"}</strong>, which is listed as a
+            <p className="text-sm text-slate-300 mb-2 leading-relaxed">
+              I&apos;ve rephrased your experience at <strong className="text-brand-300">TechMy</strong> to
+              highlight <strong className="text-brand-300">{job.tags?.[0] || "relevant skills"}</strong>, which is listed as a
               critical requirement.
             </p>
-            <p className="text-sm text-indigo-800 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               Since this is a senior role, I emphasized &quot;team
               leadership&quot; over your &quot;freelance&quot; work in the
               summary section.
             </p>
-          </Card>
+          </div>
         </div>
 
         {/* Right: Generator Output */}
-        <div className="col-span-12 md:col-span-8 flex flex-col bg-slate-800 rounded-xl overflow-hidden shadow-2xl border border-slate-700">
+        <div className="col-span-12 md:col-span-8 flex flex-col bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
           {/* Toolbar */}
-          <div className="bg-slate-900 p-3 flex justify-between items-center border-b border-slate-700">
+          <div className="bg-slate-950 p-3 flex justify-between items-center border-b border-slate-800">
             <div className="flex gap-1">
               <button
                 onClick={() => setActiveTab("preview")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all ${
                   activeTab === "preview"
-                    ? "bg-slate-700 text-white shadow-inner"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/50"
                 }`}
               >
                 <FileText size={14} /> PDF Preview
               </button>
               <button
                 onClick={() => setActiveTab("cover")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all ${
                   activeTab === "cover"
-                    ? "bg-slate-700 text-white shadow-inner"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/50"
                 }`}
               >
                 <Edit3 size={14} /> Cover Letter
               </button>
               <button
                 onClick={() => setActiveTab("latex")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-all ${
                   activeTab === "latex"
-                    ? "bg-slate-700 text-white shadow-inner"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/50"
                 }`}
               >
                 <FileCode size={14} /> LaTeX Source
@@ -364,17 +377,17 @@ Sincerely,
             <button
               onClick={handleDownloadPDF}
               disabled={isDownloading || isGenerating}
-              className="text-emerald-400 text-xs font-bold flex items-center gap-2 hover:text-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-accent-400 text-xs font-bold flex items-center gap-2 hover:text-accent-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download size={14} className={isDownloading ? "animate-bounce" : ""} />
               {isDownloading ? "Generating PDF..." : "Download PDF"}
             </button>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 bg-white overflow-y-auto font-serif relative">
+          {/* Content Area - PDF Preview stays white for realistic appearance */}
+          <div className="flex-1 bg-slate-800 overflow-y-auto font-serif relative">
             {activeTab === "preview" && (
-              <div className="max-w-[210mm] mx-auto p-12 bg-white min-h-full shadow-lg">
+              <div className="max-w-[210mm] mx-auto my-6 p-12 bg-white min-h-full shadow-2xl rounded-lg">
                 <div className="text-center border-b-2 border-gray-800 pb-6 mb-6">
                   <h2 className="text-3xl font-bold uppercase tracking-widest text-gray-900">
                     {userName || "Your Name"}
@@ -447,13 +460,13 @@ Sincerely,
             )}
 
             {activeTab === "cover" && (
-              <div className="max-w-[210mm] mx-auto p-12 bg-white min-h-full font-sans text-slate-800 leading-relaxed whitespace-pre-wrap">
+              <div className="max-w-[210mm] mx-auto my-6 p-12 bg-white min-h-full shadow-2xl rounded-lg font-sans text-slate-800 leading-relaxed whitespace-pre-wrap">
                 {generatedCoverLetter?.fullText || "Generating cover letter..."}
               </div>
             )}
 
             {activeTab === "latex" && (
-              <div className="bg-[#1e1e1e] text-[#d4d4d4] p-6 min-h-full font-mono text-xs overflow-auto">
+              <div className="bg-slate-950 text-slate-300 p-6 min-h-full font-mono text-xs overflow-auto">
                 <pre>{latexCode}</pre>
               </div>
             )}
@@ -462,4 +475,5 @@ Sincerely,
       </div>
     </div>
   );
+  /* #endregion */
 }

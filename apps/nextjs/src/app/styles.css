@@ -4,7 +4,33 @@
 
 @source "../../../../packages/ui/src/*.{ts,tsx}";
 
+/* #region CUSTOM PROPERTIES */
+@theme inline {
+  --color-slate-850: #151e32;
+  --color-slate-950: #020617;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-accent-400: #2dd4bf;
+  --color-accent-500: #14b8a6;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+/* #endregion */
 
+/* #region KEYFRAMES */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes rotate {
+  100% { transform: rotate(1turn); }
+}
+/* #endregion */
+
+/* #region UTILITY CLASSES */
 @utility container {
   margin-inline: auto;
   padding-inline: 2rem;
@@ -16,14 +42,55 @@
   }
 }
 
+@utility glass-panel {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility glass-card {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility ai-gradient-text {
+  background: linear-gradient(to right, #818cf8, #2dd4bf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+/* #endregion */
+
+/* #region BASE STYLES */
 @layer base {
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f172a; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
   * {
     @apply border-border;
     cursor: default;
   }
 
+  html {
+    color-scheme: dark;
+  }
+
   body {
     letter-spacing: var(--tracking-normal);
+    @apply bg-slate-950 text-slate-200 antialiased selection:bg-brand-500 selection:text-white;
   }
 
   button,
@@ -53,3 +120,33 @@
     cursor: not-allowed;
   }
 }
+/* #endregion */
+
+/* #region COMPONENT STYLES */
+.ai-border-container {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  padding: 1px;
+}
+
+.ai-border-container::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(transparent, rgba(99, 102, 241, 0.8), transparent 30%);
+  animation: rotate 4s linear infinite;
+}
+
+.ai-border-bg {
+  background: #1e293b;
+  border-radius: 0.7rem;
+  height: 100%;
+  width: 100%;
+}
+/* #endregion */

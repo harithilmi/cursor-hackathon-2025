@@ -82,7 +82,7 @@ export default function ResultsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-8">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-8">
       <Header currentView="results" />
       <main className="px-6 py-8">
         <ResultsView
