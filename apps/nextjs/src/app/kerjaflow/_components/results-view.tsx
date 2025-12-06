@@ -20,26 +20,25 @@ export function ResultsView({
   })).sort((a, b) => b.fit - a.fit);
 
   return (
-    <div className="max-w-5xl mx-auto animate-in fade-in duration-500">
-      <div className="flex justify-between items-end mb-6 border-b border-slate-200 pb-4">
+    <div className="max-w-5xl mx-auto">
+      <div className="flex justify-between items-end mb-6 border-b-2 border-foreground pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">
-            Matches for &quot;{searchQuery || "Software Engineer"}&quot;
+          <h2 className="text-lg font-bold text-foreground">
+            Results for &quot;{searchQuery || "Software Engineer"}&quot;
           </h2>
-          <p className="text-slate-500 text-sm mt-1">
-            Found {MOCK_JOBS.length} jobs. Ranked by fit with your master
-            resume.
+          <p className="text-sm text-muted-foreground mt-1">
+            {MOCK_JOBS.length} jobs ranked by fit score
           </p>
         </div>
         <button
           onClick={onModifySearch}
-          className="text-sm font-bold text-indigo-600 hover:text-indigo-800"
+          className="text-sm font-medium text-accent hover:text-foreground transition-colors"
         >
           Modify Search
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {jobsWithFit.map((job) => (
           <JobCard
             key={job.id}

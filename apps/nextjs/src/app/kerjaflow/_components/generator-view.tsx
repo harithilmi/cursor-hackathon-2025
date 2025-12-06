@@ -29,7 +29,6 @@ export function GeneratorView({ job, userDump, onBack }: GeneratorViewProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate generation steps for "Tech Demo" feel
     const intervals = [
       { t: 500, p: 20 },
       { t: 1000, p: 40 },
@@ -89,287 +88,236 @@ Sincerely,
 [Candidate Name]
   `;
 
+  // #region LOADING STATE
   if (isGenerating) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh]">
-        <div className="w-64 bg-slate-200 rounded-full h-2 mb-8 overflow-hidden">
+        <div className="w-64 border-2 border-foreground h-2 mb-8 overflow-hidden">
           <div
-            className="bg-indigo-600 h-full transition-all duration-300 ease-out"
+            className="bg-accent h-full transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-        <div className="flex flex-col items-center space-y-4 animate-in fade-in slide-in-from-bottom-4">
-          <Cpu size={48} className="text-indigo-600 animate-pulse" />
-          <h2 className="text-2xl font-bold text-slate-800">
-            Claude Sonnet is Thinking...
+        <div className="flex flex-col items-center space-y-6">
+          <Cpu size={40} className="text-accent" />
+          <h2 className="text-lg font-bold text-foreground">
+            Claude is generating...
           </h2>
-          <div className="text-sm text-slate-500 font-mono flex flex-col items-center space-y-1">
-            <p className={progress > 20 ? "text-green-600" : "text-slate-400"}>
-              ✓ Analyzing &quot;Master Dump&quot; vs Job Spec
+          <div className="text-sm text-muted-foreground flex flex-col items-start space-y-2">
+            <p className={progress > 20 ? "text-accent" : ""}>
+              {progress > 20 ? "✓" : "○"} Analyzing Master Dump
             </p>
-            <p className={progress > 40 ? "text-green-600" : "text-slate-400"}>
-              ✓ Identifying keywords: {job.keywords.slice(0, 3).join(", ")}
+            <p className={progress > 40 ? "text-accent" : ""}>
+              {progress > 40 ? "✓" : "○"} Matching keywords: {job.keywords.slice(0, 3).join(", ")}
             </p>
-            <p className={progress > 60 ? "text-green-600" : "text-slate-400"}>
-              ✓ Drafting Cover Letter
+            <p className={progress > 60 ? "text-accent" : ""}>
+              {progress > 60 ? "✓" : "○"} Drafting cover letter
             </p>
-            <p className={progress > 80 ? "text-green-600" : "text-slate-400"}>
-              ✓ Compiling LaTeX to PDF...
+            <p className={progress > 80 ? "text-accent" : ""}>
+              {progress > 80 ? "✓" : "○"} Compiling LaTeX to PDF
             </p>
           </div>
         </div>
       </div>
     );
   }
+  // #endregion
 
   return (
-    <div className="max-w-6xl mx-auto h-[85vh] flex flex-col animate-in fade-in duration-500">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto h-[85vh] flex flex-col">
+      {/* #region TOP BAR */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={onBack}
-          className="flex items-center text-slate-500 hover:text-slate-800 transition-colors"
+          className="flex items-center text-muted-foreground hover:text-foreground transition-colors text-sm"
         >
-          <ArrowLeft size={16} className="mr-1" /> Back to Dashboard
+          <ArrowLeft size={14} className="mr-1" /> Back to Results
         </button>
-        <div className="flex items-center gap-3">
+        <Button asChild variant="accent">
           <a
             href={job.link}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg shadow-sm font-bold transition-all"
+            className="flex items-center gap-2"
           >
-            Apply on Hiredly <ExternalLink size={16} />
+            Apply on Hiredly <ExternalLink size={14} />
           </a>
-        </div>
+        </Button>
       </div>
+      {/* #endregion */}
 
-      <div className="grid grid-cols-12 gap-6 h-full pb-8">
-        {/* Left: Job Context */}
+      <div className="grid grid-cols-12 gap-4 h-full pb-8">
+        {/* #region LEFT PANEL */}
         <div className="col-span-12 md:col-span-4 flex flex-col gap-4 h-full overflow-hidden">
-          {/* Job Details Card */}
-          <Card className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <div className="mb-4">
-              <h1 className="text-xl font-bold text-slate-900 leading-tight mb-1">
+          <Card className="p-0">
+            <div className="p-4 border-b border-muted">
+              <h1 className="text-sm font-medium text-foreground leading-tight mb-1">
                 {job.title}
               </h1>
-              <p className="text-slate-500 font-medium">{job.company}</p>
+              <p className="text-xs text-muted-foreground">{job.company}</p>
             </div>
 
-            <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex items-center justify-between mb-4">
-              <span className="text-xs font-bold text-green-700 uppercase">
+            <div className="p-4 border-b border-muted flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">
                 Fit Score
               </span>
-              <span className="text-2xl font-black text-green-600">
+              <span className="text-xl font-bold text-accent tabular-nums">
                 {calculateFit(job.keywords, userDump)}%
               </span>
             </div>
 
             {job.risk_level === "High Risk" && (
-              <div className="bg-red-50 p-3 rounded-lg border border-red-100 mb-4">
-                <h4 className="flex items-center text-red-800 font-bold text-xs mb-1">
-                  <ShieldAlert size={12} className="mr-1" /> Caution: Red Flags
+              <div className="p-4 border-b border-destructive bg-destructive/5">
+                <h4 className="flex items-center text-destructive font-medium text-xs mb-2">
+                  <ShieldAlert size={12} className="mr-1" /> Red Flags
                 </h4>
-                <ul className="pl-4 list-disc space-y-0.5">
+                <ul className="space-y-1">
                   {job.red_flags.map((flag, idx) => (
-                    <li key={idx} className="text-[10px] text-red-700">
-                      {flag}
+                    <li key={idx} className="text-xs text-destructive">
+                      • {flag}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
 
-            <div className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3 max-h-32 overflow-y-auto">
+            <div className="p-4 text-xs text-muted-foreground leading-relaxed max-h-32 overflow-y-auto">
               {job.description}
             </div>
           </Card>
 
-          {/* AI Insight Card */}
-          <Card className="bg-indigo-50 p-5 rounded-xl border border-indigo-100 flex-1 overflow-auto">
-            <div className="flex items-center gap-2 mb-3">
-              <Cpu size={18} className="text-indigo-600" />
-              <h3 className="font-bold text-indigo-900 text-sm">
-                Tailoring Strategy
+          <Card className="p-0 flex-1 overflow-auto border-accent">
+            <div className="p-4 border-b border-accent flex items-center gap-2">
+              <Cpu size={14} className="text-accent" />
+              <h3 className="font-medium text-accent text-xs">
+                AI Strategy
               </h3>
             </div>
-            <p className="text-sm text-indigo-800 mb-2 leading-relaxed">
-              I&apos;ve rephrased your experience at <strong>TechMy</strong> to
-              highlight <strong>{job.tags[0]}</strong>, which is listed as a
-              critical requirement.
-            </p>
-            <p className="text-sm text-indigo-800 leading-relaxed">
-              Since this is a senior role, I emphasized &quot;team
-              leadership&quot; over your &quot;freelance&quot; work in the
-              summary section.
-            </p>
+            <div className="p-4 space-y-3 text-xs text-foreground leading-relaxed">
+              <p>
+                Rephrased experience at <strong>TechMy</strong> to highlight{" "}
+                <strong>{job.tags[0]}</strong> (critical requirement).
+              </p>
+              <p>
+                Emphasized &quot;team leadership&quot; over &quot;freelance&quot; work for senior role positioning.
+              </p>
+            </div>
           </Card>
         </div>
+        {/* #endregion */}
 
-        {/* Right: Generator Output */}
-        <div className="col-span-12 md:col-span-8 flex flex-col bg-slate-800 rounded-xl overflow-hidden shadow-2xl border border-slate-700">
-          {/* Toolbar */}
-          <div className="bg-slate-900 p-3 flex justify-between items-center border-b border-slate-700">
+        {/* #region RIGHT PANEL */}
+        <div className="col-span-12 md:col-span-8 flex flex-col border-2 border-foreground overflow-hidden">
+          <div className="bg-foreground text-background p-3 flex justify-between items-center">
             <div className="flex gap-1">
-              <button
-                onClick={() => setActiveTab("preview")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
-                  activeTab === "preview"
-                    ? "bg-slate-700 text-white shadow-inner"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                <FileText size={14} /> PDF Preview
-              </button>
-              <button
-                onClick={() => setActiveTab("cover")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
-                  activeTab === "cover"
-                    ? "bg-slate-700 text-white shadow-inner"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                <Edit3 size={14} /> Cover Letter
-              </button>
-              <button
-                onClick={() => setActiveTab("latex")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
-                  activeTab === "latex"
-                    ? "bg-slate-700 text-white shadow-inner"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                <FileCode size={14} /> LaTeX Source
-              </button>
+              {[
+                { id: "preview", icon: FileText, label: "PDF Preview" },
+                { id: "cover", icon: Edit3, label: "Cover Letter" },
+                { id: "latex", icon: FileCode, label: "LaTeX" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
+                  className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-background text-foreground"
+                      : "text-background/60 hover:text-background"
+                  }`}
+                >
+                  <tab.icon size={12} /> {tab.label}
+                </button>
+              ))}
             </div>
-            <button className="text-emerald-400 text-xs font-bold flex items-center gap-2 hover:text-emerald-300">
-              <Download size={14} /> Download PDF
+            <button className="text-accent text-xs font-medium flex items-center gap-1.5 hover:text-background transition-colors">
+              <Download size={12} /> Download
             </button>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 bg-white overflow-y-auto font-serif relative">
+          <div className="flex-1 bg-card overflow-y-auto">
             {activeTab === "preview" && (
-              <div className="max-w-[210mm] mx-auto p-12 bg-white min-h-full shadow-lg">
-                <div className="text-center border-b-2 border-gray-800 pb-6 mb-6">
-                  <h2 className="text-3xl font-bold uppercase tracking-widest text-gray-900">
+              <div className="max-w-[210mm] mx-auto p-12 bg-card min-h-full">
+                <div className="text-center border-b-2 border-foreground pb-6 mb-6">
+                  <h2 className="text-xl font-bold text-foreground">
                     Demo User
                   </h2>
-                  <div className="text-sm text-gray-600 mt-2 flex justify-center gap-4">
-                    <span>Subang Jaya, Malaysia</span>
-                    <span>•</span>
+                  <div className="text-xs text-muted-foreground mt-2 flex justify-center gap-4">
+                    <span>Subang Jaya, MY</span>
+                    <span>|</span>
                     <span>candidate@email.com</span>
-                    <span>•</span>
-                    <span>linkedin.com/in/demouser</span>
+                    <span>|</span>
+                    <span>linkedin.com/in/demo</span>
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-2">
-                    Professional Summary
+                  <h3 className="text-xs font-bold text-muted-foreground mb-2 border-b border-muted pb-1">
+                    Summary
                   </h3>
-                  <p className="text-sm leading-relaxed text-gray-800">
-                    Results-oriented Software Engineer with a proven track
-                    record of delivering robust web solutions. Possesses strong
-                    expertise in{" "}
+                  <p className="text-xs leading-relaxed text-foreground">
+                    Results-oriented Software Engineer with proven track record.
+                    Expertise in{" "}
                     <strong>{job.keywords.slice(0, 3).join(", ")}</strong>,
-                    directly aligning with the technical requirements for the{" "}
-                    <strong>{job.title}</strong> role at{" "}
-                    <strong>{job.company}</strong>. Committed to writing clean,
-                    maintainable code and fostering collaborative team
-                    environments.
+                    aligning with <strong>{job.title}</strong> at{" "}
+                    <strong>{job.company}</strong>.
                   </p>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-3">
-                    Relevant Experience
+                  <h3 className="text-xs font-bold text-muted-foreground mb-3 border-b border-muted pb-1">
+                    Experience
                   </h3>
 
                   <div className="mb-4">
                     <div className="flex justify-between items-baseline mb-1">
-                      <h4 className="font-bold text-gray-900 text-base">
+                      <h4 className="font-medium text-foreground text-sm">
                         Frontend Developer
                       </h4>
-                      <span className="text-sm text-gray-600 font-medium">
+                      <span className="text-xs text-muted-foreground">
                         2020 - 2022
                       </span>
                     </div>
-                    <p className="text-sm text-gray-700 italic mb-2">
+                    <p className="text-xs text-muted-foreground mb-2">
                       TechMy Sdn Bhd
                     </p>
-                    <ul className="list-disc list-outside ml-4 text-sm space-y-1.5 text-gray-700">
+                    <ul className="text-xs space-y-1 text-foreground">
                       <li>
-                        Spearheaded the development of a client-facing dashboard
-                        using <strong>{job.tags[0] || "React"}</strong>,
-                        reducing page load times by 40%.
+                        • Built dashboard using <strong>{job.tags[0] || "React"}</strong>, reducing load times by 40%
                       </li>
                       <li>
-                        Collaborated with cross-functional teams to implement{" "}
-                        <strong>{job.tags[1] || "RESTful APIs"}</strong>,
-                        ensuring seamless data integration.
+                        • Implemented <strong>{job.tags[1] || "RESTful APIs"}</strong> for data integration
                       </li>
                       <li>
-                        Mentored junior developers on best practices in{" "}
-                        {job.keywords[1] || "modern web development"}.
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="flex justify-between items-baseline mb-1">
-                      <h4 className="font-bold text-gray-900 text-base">
-                        Freelance Web Developer
-                      </h4>
-                      <span className="text-sm text-gray-600 font-medium">
-                        2018 - 2020
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 italic mb-2">
-                      Self-Employed
-                    </p>
-                    <ul className="list-disc list-outside ml-4 text-sm space-y-1.5 text-gray-700">
-                      <li>
-                        Delivered 15+ custom WordPress and HTML websites for
-                        local SMEs, ensuring mobile responsiveness and SEO
-                        optimization.
-                      </li>
-                      <li>
-                        Managed client requirements and project timelines
-                        effectively.
+                        • Mentored juniors on {job.keywords[1] || "web dev"} best practices
                       </li>
                     </ul>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold uppercase text-gray-500 tracking-wider mb-2">
+                  <h3 className="text-xs font-bold text-muted-foreground mb-2 border-b border-muted pb-1">
                     Skills
                   </h3>
-                  <p className="text-sm text-gray-700">
-                    <strong>Technical:</strong> {job.keywords.join(", ")}, SQL,
-                    Git, Tailwind CSS.
-                    <br />
-                    <strong>Languages:</strong> English (Native), Malay
-                    (Fluent).
+                  <p className="text-xs text-foreground">
+                    {job.keywords.join(" | ")} | SQL | Git | Tailwind
                   </p>
                 </div>
               </div>
             )}
 
             {activeTab === "cover" && (
-              <div className="max-w-[210mm] mx-auto p-12 bg-white min-h-full font-sans text-slate-800 leading-relaxed whitespace-pre-wrap">
+              <div className="max-w-[210mm] mx-auto p-12 bg-card min-h-full text-sm text-foreground leading-relaxed whitespace-pre-wrap">
                 {coverLetter}
               </div>
             )}
 
             {activeTab === "latex" && (
-              <div className="bg-[#1e1e1e] text-[#d4d4d4] p-6 min-h-full font-mono text-xs overflow-auto">
+              <div className="bg-foreground text-background p-6 min-h-full text-xs overflow-auto">
                 <pre>{latexCode}</pre>
               </div>
             )}
           </div>
         </div>
+        {/* #endregion */}
       </div>
     </div>
   );
