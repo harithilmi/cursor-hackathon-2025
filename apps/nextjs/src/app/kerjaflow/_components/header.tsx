@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Briefcase, FileText, Bell, ClipboardPaste } from "lucide-react";
+import { Briefcase, FileText, Bell, ClipboardPaste, Percent } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
 interface HeaderProps {
-  currentView: "dump" | "search" | "results" | "generate" | "manual";
+  currentView: "dump" | "search" | "results" | "generate" | "manual" | "match";
 }
 
 export function Header({ currentView }: HeaderProps) {
@@ -51,15 +51,23 @@ export function Header({ currentView }: HeaderProps) {
 
       {/* #region RIGHT ACTIONS */}
       <div className="flex items-center gap-4">
-        {currentView !== "manual" && (
+        {currentView !== "match" && (
+          <button
+            onClick={() => router.push("/match")}
+            className="text-xs font-bold text-slate-400 hover:text-accent-400 flex items-center gap-1.5 uppercase tracking-wide transition-colors"
+          >
+            <Percent size={14} /> Match %
+          </button>
+        )}
+        {currentView !== "manual" && currentView !== "match" && (
           <button
             onClick={() => router.push("/manual")}
-            className="text-xs font-bold text-slate-400 hover:text-accent-400 flex items-center gap-1.5 uppercase tracking-wide transition-colors"
+            className="text-xs font-bold text-slate-400 hover:text-brand-400 flex items-center gap-1.5 uppercase tracking-wide transition-colors"
           >
             <ClipboardPaste size={14} /> Paste Job
           </button>
         )}
-        {currentView !== "generate" && currentView !== "dump" && currentView !== "manual" && (
+        {currentView !== "generate" && currentView !== "dump" && currentView !== "manual" && currentView !== "match" && (
           <button
             onClick={() => router.push("/dump")}
             className="text-xs font-bold text-slate-400 hover:text-brand-400 flex items-center gap-1.5 uppercase tracking-wide transition-colors"

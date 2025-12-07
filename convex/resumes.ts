@@ -58,3 +58,25 @@ export const deleteResume = mutation({
     await ctx.db.delete(args.resumeId);
   },
 });
+
+// Get all resumes (for admin/debugging)
+export const getAllResumes = query({
+  args: {},
+  handler: async (ctx) => {
+    const resumes = await ctx.db.query("resumes").collect();
+
+    // Get user info for each resume
+    const resumesWithUsers = await Promise.all(
+      resumes.map(async (resume) => {
+        const user = await ctx.db.get(resume.userId);
+        return {
+          ...resume,
+          userEmail: user?.email,
+          userName: user?.name,
+        };
+      })
+    );
+
+    return resumesWithUsers;
+  },
+});

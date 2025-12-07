@@ -67,4 +67,21 @@ export default defineSchema({
   }).index("by_user", ["userId"])
     .index("by_job", ["jobId"])
     .index("by_user_and_job", ["userId", "jobId"]),
+
+  // Manual job match calculations (user-pasted job descriptions)
+  manualJobMatches: defineTable({
+    userId: v.id("users"),
+    rawInput: v.string(),
+    position: v.string(),
+    company: v.string(),
+    fitScore: v.number(),
+    aiReasoning: v.string(),
+    keyStrengths: v.array(v.string()),
+    potentialChallenges: v.array(v.string()),
+    criticalSkillsFound: v.optional(v.array(v.string())),
+    criticalSkillsMissing: v.optional(v.array(v.string())),
+    penaltyCalculation: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"])
+    .index("by_user_and_score", ["userId", "fitScore"]),
 });
