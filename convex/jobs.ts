@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-// Save multiple job listings from scraping
+// Save multiple job listings from scraping (URL-based deduplication)
 export const saveJobs = mutation({
   args: {
     userId: v.id("users"),
@@ -22,18 +22,32 @@ export const saveJobs = mutation({
     const scrapedAt = Date.now();
 
     for (const job of args.jobs) {
-      const jobId = await ctx.db.insert("jobListings", {
-        userId: args.userId,
-        position: job.position,
-        company: job.company,
-        location: job.location,
-        description: job.description,
-        salary: job.salary,
-        url: job.url,
-        searchTerm: args.searchTerm,
-        scrapedAt,
-      });
-      jobIds.push(jobId);
+      // Check if job with same URL already exists for this user
+      const existingJob = await ctx.db
+        .query("jobListings")
+        .withIndex("by_user_and_url", (q) =>
+          q.eq("userId", args.userId).eq("url", job.url)
+        )
+        .first();
+
+      if (existingJob) {
+        // Job already exists, return existing ID
+        jobIds.push(existingJob._id);
+      } else {
+        // Insert new job
+        const jobId = await ctx.db.insert("jobListings", {
+          userId: args.userId,
+          position: job.position,
+          company: job.company,
+          location: job.location,
+          description: job.description,
+          salary: job.salary,
+          url: job.url,
+          searchTerm: args.searchTerm,
+          scrapedAt,
+        });
+        jobIds.push(jobId);
+      }
     }
 
     return jobIds;

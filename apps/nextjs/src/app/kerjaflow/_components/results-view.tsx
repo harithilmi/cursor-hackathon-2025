@@ -1,7 +1,8 @@
-import { Loader2, LayoutGrid, List } from "lucide-react";
+import { useState } from "react";
+import { Loader2, LayoutGrid, List, Bookmark } from "lucide-react";
 import { JobCard } from "./job-card";
 
-interface RankedJob {
+export interface RankedJob {
   _id: string;
   position: string;
   company: string;
@@ -15,14 +16,18 @@ interface RankedJob {
   potentialChallenges?: string[];
 }
 
+type FilterMode = "all" | "saved";
+
 interface ResultsViewProps {
   searchQuery: string;
   userDump: string;
   jobs: RankedJob[];
   isRanking: boolean;
   rankingProgress: number;
-  onJobSelect: (job: any) => void;
+  savedJobIds: string[];
+  onJobSelect: (job: RankedJob) => void;
   onModifySearch: () => void;
+  onSaveToggle: (jobId: string) => void;
 }
 
 export function ResultsView({
@@ -30,9 +35,18 @@ export function ResultsView({
   jobs,
   isRanking,
   rankingProgress,
+  savedJobIds,
   onJobSelect,
   onModifySearch,
+  onSaveToggle,
 }: ResultsViewProps) {
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+
+  const filteredJobs = filterMode === "saved"
+    ? jobs.filter((job) => savedJobIds.includes(job._id))
+    : jobs;
+
+  const savedCount = jobs.filter((job) => savedJobIds.includes(job._id)).length;
   /* #region LOADING STATE */
   if (jobs.length === 0 && isRanking) {
     return (
@@ -93,6 +107,36 @@ export function ResultsView({
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Filter Tabs */}
+          <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800">
+            <button
+              onClick={() => setFilterMode("all")}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+                filterMode === "all"
+                  ? "bg-slate-700 text-white shadow-sm"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              All Jobs
+            </button>
+            <button
+              onClick={() => setFilterMode("saved")}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-all flex items-center gap-1.5 ${
+                filterMode === "saved"
+                  ? "bg-brand-500/20 text-brand-400 shadow-sm"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              <Bookmark className="w-3 h-3" />
+              Saved
+              {savedCount > 0 && (
+                <span className="bg-brand-500/30 text-brand-300 text-[10px] px-1.5 py-0.5 rounded-full">
+                  {savedCount}
+                </span>
+              )}
+            </button>
+          </div>
+
           <button
             onClick={onModifySearch}
             className="text-sm font-medium text-brand-400 hover:text-brand-300 transition-colors"
@@ -128,31 +172,54 @@ export function ResultsView({
         </div>
       )}
 
+      {/* Empty Saved State */}
+      {filterMode === "saved" && filteredJobs.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-4">
+            <Bookmark className="w-8 h-8 text-slate-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-2">No Saved Jobs</h3>
+          <p className="text-slate-400 text-sm max-w-sm">
+            Click the bookmark icon on any job card to save it for later
+          </p>
+          <button
+            onClick={() => setFilterMode("all")}
+            className="mt-4 text-sm font-medium text-brand-400 hover:text-brand-300 transition-colors"
+          >
+            View All Jobs
+          </button>
+        </div>
+      )}
+
       {/* Job Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20 relative z-10">
-        {jobs.map((job) => (
-          <JobCard
-            key={job._id}
-            job={{
-              id: job._id,
-              title: job.position,
-              company: job.company,
-              location: job.location,
-              description: job.description,
-              salary: job.salary || "Not specified",
-              link: job.url,
-              tags: [],
-              keywords: [],
-              culture_raw: "",
-              red_flags: [],
-              risk_level: "Safe" as const,
-            }}
-            fitScore={job.fitScore}
-            isRanking={job.fitScore === undefined}
-            onClick={() => onJobSelect(job)}
-          />
-        ))}
-      </div>
+      {filteredJobs.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20 relative z-10">
+          {filteredJobs.map((job) => (
+            <JobCard
+              key={job._id}
+              job={{
+                id: job._id,
+                title: job.position,
+                company: job.company,
+                location: job.location,
+                description: job.description,
+                salary: job.salary || "Not specified",
+                link: job.url,
+                tags: [],
+                keywords: [],
+                culture_raw: "",
+                red_flags: [],
+                risk_level: "Safe" as const,
+              }}
+              fitScore={job.fitScore}
+              isRanking={job.fitScore === undefined}
+              isSaved={savedJobIds.includes(job._id)}
+              onSaveToggle={() => onSaveToggle(job._id)}
+              onClick={() => onJobSelect(job)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
   /* #endregion */

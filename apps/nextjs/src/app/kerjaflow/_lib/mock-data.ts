@@ -10,8 +10,8 @@ Language: English (Native), Malay (Fluent), Mandarin (Basic).
 `;
 
 export interface Job {
-  id?: number;
-  _id?: any;
+  id?: number | string;
+  _id?: string;
   title?: string;
   position?: string;
   company: string;

@@ -82,14 +82,9 @@ export default function SearchPage() {
 
       setProgress(100);
 
-      // Save to localStorage as fallback
-      if (typeof window !== "undefined") {
-        localStorage.setItem("kerjaflow_search", searchQuery);
-      }
-
-      // Small delay to show 100% completion
+      // Small delay to show 100% completion, then navigate to dynamic results URL
       setTimeout(() => {
-        router.push("/results");
+        router.push(`/results/${encodeURIComponent(searchQuery)}`);
       }, 500);
     } catch (error) {
       console.error("Failed to search jobs:", error);
@@ -100,9 +95,9 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans text-slate-200 pb-8">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-200 flex flex-col">
       <Header currentView="search" />
-      <main className="px-6 py-8">
+      <main className="flex-1 flex items-center justify-center px-6 py-8">
         <SearchView
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

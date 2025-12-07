@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
     // Return all results (LLM parsing with structured outputs already done in Actor)
-    const jobs = items as JobListing[];
+    const jobs = items as unknown as JobListing[];
 
     // Save jobs to Convex if userId is provided
     if (userId) {

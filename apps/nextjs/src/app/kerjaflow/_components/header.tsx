@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Briefcase, FileText, Bell } from "lucide-react";
+import { Briefcase, FileText, Bell, ClipboardPaste } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 
 interface HeaderProps {
-  currentView: "dump" | "search" | "results" | "generate";
+  currentView: "dump" | "search" | "results" | "generate" | "manual";
 }
 
 export function Header({ currentView }: HeaderProps) {
@@ -44,14 +44,22 @@ export function Header({ currentView }: HeaderProps) {
           </>
         )}
         <span>
-          Claude 4.5: <span className="text-brand-400">Active</span>
+          AI Engine: <span className="text-brand-400">Active</span>
         </span>
       </div>
       {/* #endregion */}
 
       {/* #region RIGHT ACTIONS */}
       <div className="flex items-center gap-4">
-        {currentView !== "generate" && currentView !== "dump" && (
+        {currentView !== "manual" && (
+          <button
+            onClick={() => router.push("/manual")}
+            className="text-xs font-bold text-slate-400 hover:text-accent-400 flex items-center gap-1.5 uppercase tracking-wide transition-colors"
+          >
+            <ClipboardPaste size={14} /> Paste Job
+          </button>
+        )}
+        {currentView !== "generate" && currentView !== "dump" && currentView !== "manual" && (
           <button
             onClick={() => router.push("/dump")}
             className="text-xs font-bold text-slate-400 hover:text-brand-400 flex items-center gap-1.5 uppercase tracking-wide transition-colors"

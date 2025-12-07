@@ -1,33 +1,22 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
-import { ResultsView } from "../kerjaflow/_components/results-view";
-import { StatusFooter } from "../kerjaflow/_components/status-footer";
-import { Header } from "../kerjaflow/_components/header";
+import { ResultsView, type RankedJob } from "../../kerjaflow/_components/results-view";
+import { StatusFooter } from "../../kerjaflow/_components/status-footer";
+import { Header } from "../../kerjaflow/_components/header";
 import type { Id } from "~/convex/_generated/dataModel";
 
-interface RankedJob {
-  _id: Id<"jobListings">;
-  position: string;
-  company: string;
-  location: string;
-  description: string;
-  salary?: string;
-  url: string;
-  fitScore?: number;
-  aiReasoning?: string;
-  keyStrengths?: string[];
-  potentialChallenges?: string[];
-}
-
 export default function ResultsPage() {
+  const params = useParams();
   const router = useRouter();
   const { user } = useUser();
-  const [searchQuery, setSearchQuery] = useState("");
+
+  // Get search term from URL and decode it
+  const searchTerm = decodeURIComponent(params.searchTerm as string);
 
   // Get user from Convex
   const convexUser = useQuery(
@@ -44,17 +33,27 @@ export default function ResultsPage() {
   // Get jobs with rankings (reactive query - updates as rankings complete)
   const jobsWithRankings = useQuery(
     api.rankings.getJobsWithRankings,
-    convexUser?._id && searchQuery
-      ? { userId: convexUser._id, searchTerm: searchQuery }
+    convexUser?._id && searchTerm
+      ? { userId: convexUser._id, searchTerm }
       : "skip"
   );
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedSearch = localStorage.getItem("kerjaflow_search");
-      if (savedSearch) setSearchQuery(savedSearch);
-    }
-  }, []);
+  // Get saved job IDs
+  const savedJobIds = useQuery(
+    api.savedJobs.getSavedJobIds,
+    convexUser?._id ? { userId: convexUser._id } : "skip"
+  );
+
+  // Mutation to toggle save state
+  const toggleSaveJob = useMutation(api.savedJobs.toggleSaveJob);
+
+  const handleSaveToggle = async (jobId: string) => {
+    if (!convexUser?._id) return;
+    await toggleSaveJob({
+      userId: convexUser._id,
+      jobId: jobId as Id<"jobListings">,
+    });
+  };
 
   // Calculate ranking progress
   const { isRanking, rankingProgress } = useMemo(() => {
@@ -73,7 +72,6 @@ export default function ResultsPage() {
   }, [jobsWithRankings]);
 
   const handleJobSelect = (job: RankedJob) => {
-    // Navigate to job details page with jobId
     router.push(`/jobs/${job._id}`);
   };
 
@@ -86,13 +84,15 @@ export default function ResultsPage() {
       <Header currentView="results" />
       <main className="px-6 py-8">
         <ResultsView
-          searchQuery={searchQuery}
+          searchQuery={searchTerm}
           userDump={resume?.content || ""}
           jobs={(jobsWithRankings || []) as RankedJob[]}
           isRanking={isRanking}
           rankingProgress={rankingProgress}
+          savedJobIds={(savedJobIds || []) as string[]}
           onJobSelect={handleJobSelect}
           onModifySearch={handleModifySearch}
+          onSaveToggle={handleSaveToggle}
         />
       </main>
       <StatusFooter />

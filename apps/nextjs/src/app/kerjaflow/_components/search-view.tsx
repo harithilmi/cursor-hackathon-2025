@@ -19,7 +19,7 @@ export function SearchView({
   /* #region LOADING STATE */
   if (isLoading) {
     const milestones = [
-      { label: "Initializing Apify Actor", threshold: 10, duration: "~5s" },
+      { label: "Starting job search", threshold: 10, duration: "~5s" },
       { label: "Navigating to Hiredly", threshold: 20, duration: "~10s" },
       { label: "Searching job listings", threshold: 30, duration: "~15s" },
       { label: "Extracting job details", threshold: 50, duration: "~60s" },
@@ -32,7 +32,7 @@ export function SearchView({
     const activeMilestoneIndex = currentMilestone === -1 ? milestones.length - 1 : Math.max(0, currentMilestone - 1);
 
     return (
-      <div className="max-w-3xl mx-auto mt-12 space-y-8 animate-in zoom-in duration-300 relative">
+      <div className="max-w-3xl mx-auto space-y-8 animate-in zoom-in duration-300 relative w-full">
         {/* Ambient Effects */}
         <div className="absolute top-[-20%] left-[10%] w-[400px] h-[400px] bg-brand-600/10 blur-[100px] rounded-full pointer-events-none" />
 
@@ -139,7 +139,7 @@ export function SearchView({
 
   /* #region SEARCH VIEW */
   return (
-    <div className="max-w-6xl mx-auto mt-10 animate-in zoom-in duration-300 relative">
+    <div className="max-w-6xl mx-auto animate-in zoom-in duration-300 relative w-full">
       {/* Ambient Effects */}
       <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-brand-600/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-accent-500/5 blur-[100px] rounded-full pointer-events-none" />

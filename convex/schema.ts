@@ -29,7 +29,19 @@ export default defineSchema({
     searchTerm: v.string(),
     scrapedAt: v.number(),
   }).index("by_user", ["userId"])
-    .index("by_user_and_search", ["userId", "searchTerm"]),
+    .index("by_user_and_search", ["userId", "searchTerm"])
+    .index("by_url", ["url"])
+    .index("by_user_and_url", ["userId", "url"]),
+
+  // User's saved/bookmarked jobs
+  savedJobs: defineTable({
+    userId: v.id("users"),
+    jobId: v.id("jobListings"),
+    savedAt: v.number(),
+    notes: v.optional(v.string()),
+  }).index("by_user", ["userId"])
+    .index("by_job", ["jobId"])
+    .index("by_user_and_job", ["userId", "jobId"]),
 
   // AI-generated job rankings based on resume fit
   jobRankings: defineTable({

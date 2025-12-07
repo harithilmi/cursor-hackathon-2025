@@ -1,15 +1,16 @@
-import { AlertTriangle, Briefcase, ChevronRight, Loader2, MapPin, Sparkles, ArrowRight } from "lucide-react";
-import { Badge } from "@acme/ui/badge";
+import { AlertTriangle, Bookmark, Briefcase, ChevronRight, Loader2, MapPin, Sparkles, ArrowRight } from "lucide-react";
 import type { Job } from "../_lib/mock-data";
 
 interface JobCardProps {
   job: Job;
   fitScore?: number;
   isRanking?: boolean;
+  isSaved?: boolean;
+  onSaveToggle?: (job: Job) => void;
   onClick: (job: Job) => void;
 }
 
-export function JobCard({ job, fitScore, isRanking = false, onClick }: JobCardProps) {
+export function JobCard({ job, fitScore, isRanking = false, isSaved = false, onSaveToggle, onClick }: JobCardProps) {
   const isHighMatch = fitScore && fitScore > 80;
   const isMediumMatch = fitScore && fitScore > 60;
 
@@ -18,8 +19,27 @@ export function JobCard({ job, fitScore, isRanking = false, onClick }: JobCardPr
       onClick={() => onClick(job)}
       className="group relative bg-slate-900/80 hover:bg-slate-800/80 rounded-2xl border border-slate-800 hover:border-brand-500/40 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-500/10 hover:-translate-y-1 overflow-hidden backdrop-blur-sm cursor-pointer"
     >
-      {/* #region FIT SCORE BADGE */}
-      <div className="absolute top-0 right-0 p-4">
+      {/* #region TOP RIGHT: SAVE BUTTON + FIT SCORE */}
+      <div className="absolute top-0 right-0 p-4 flex items-center gap-2">
+        {/* Save/Bookmark Button */}
+        {onSaveToggle && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSaveToggle(job);
+            }}
+            className={`p-1.5 rounded-lg transition-all ${
+              isSaved
+                ? "bg-brand-500/20 text-brand-400 hover:bg-brand-500/30"
+                : "bg-slate-800 text-slate-400 hover:text-brand-400 hover:bg-slate-700"
+            }`}
+            title={isSaved ? "Remove from saved" : "Save job"}
+          >
+            <Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+          </button>
+        )}
+
+        {/* Fit Score */}
         {isRanking ? (
           <div className="flex flex-col items-center">
             <Loader2 size={24} className="text-brand-400 animate-spin" />
