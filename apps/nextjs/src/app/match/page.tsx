@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "~/convex/_generated/api";
 import type { Id, Doc } from "~/convex/_generated/dataModel";
 import { Header } from "../kerjaflow/_components/header";
@@ -17,6 +17,10 @@ import {
   ChevronUp,
   Building2,
   Briefcase,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Target,
 } from "lucide-react";
 import { Button } from "@acme/ui/button";
 
@@ -77,7 +81,6 @@ export default function MatchPage() {
       resumeContent: resume.content,
     }).catch((err) => {
       console.error("Error calculating match:", err);
-      // Error is logged but doesn't block - results appear via Convex reactive query
     });
   };
 
@@ -98,16 +101,27 @@ export default function MatchPage() {
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 75) return "text-green-400 bg-green-500/20";
-    if (score >= 50) return "text-yellow-400 bg-yellow-500/20";
-    return "text-red-400 bg-red-500/20";
-  };
-
-  const getScoreBgColor = (score: number) => {
-    if (score >= 75) return "from-green-500/20 to-green-500/5";
-    if (score >= 50) return "from-yellow-500/20 to-yellow-500/5";
-    return "from-red-500/20 to-red-500/5";
+  const getOutcomeStyles = (outcome: "MATCH" | "STRETCH" | "REJECT") => {
+    switch (outcome) {
+      case "MATCH":
+        return {
+          badge: "bg-green-500/20 text-green-400 border-green-500/30",
+          card: "from-green-500/10 to-green-500/5",
+          icon: CheckCircle2,
+        };
+      case "STRETCH":
+        return {
+          badge: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+          card: "from-yellow-500/10 to-yellow-500/5",
+          icon: Target,
+        };
+      case "REJECT":
+        return {
+          badge: "bg-red-500/20 text-red-400 border-red-500/30",
+          card: "from-red-500/10 to-red-500/5",
+          icon: XCircle,
+        };
+    }
   };
 
   return (
@@ -119,14 +133,14 @@ export default function MatchPage() {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-500/10 border border-accent-500/20 text-accent-400 text-sm font-medium mb-4">
               <Calculator size={14} />
-              <span>Match Calculator</span>
+              <span>Interview Probability Calculator</span>
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              Check Your Job Fit
+              Should You Apply?
             </h1>
             <p className="text-slate-400 max-w-lg mx-auto">
-              Paste any job description to see your match percentage.
-              AI extracts position &amp; company and analyzes your fit.
+              Paste a job description to get a brutally honest assessment.
+              Only apply to jobs where you have {">"} 70% interview chance.
             </p>
           </div>
 
@@ -172,9 +186,6 @@ Software Engineer at TechCorp Malaysia
 Location: Kuala Lumpur
 Salary: RM 8,000 - RM 12,000
 
-About the Role:
-We're looking for a passionate software engineer...
-
 Requirements:
 - 3+ years of experience with React/Next.js
 - Strong TypeScript skills
@@ -197,7 +208,7 @@ Requirements:
                 className="w-full bg-gradient-to-r from-accent-600 to-brand-600 hover:from-accent-500 hover:to-brand-500 text-white font-semibold px-6 py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Sparkles size={18} className="mr-2" />
-                Calculate Match Percentage
+                Analyze Interview Probability
               </Button>
             </div>
           </div>
@@ -206,198 +217,264 @@ Requirements:
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-white">
-                Your Matches
+                Your Analyses
               </h2>
-              {matches && matches.length > 0 && (
+              {matches && matches.filter((m) => m.outcome).length > 0 && (
                 <span className="text-sm text-slate-400">
-                  {matches.length} job{matches.length !== 1 ? "s" : ""} analyzed
+                  {matches.filter((m) => m.outcome).length} job{matches.filter((m) => m.outcome).length !== 1 ? "s" : ""} analyzed
                 </span>
               )}
             </div>
 
             {/* Empty State */}
-            {(!matches || matches.length === 0) && (
+            {(!matches || matches.filter((m) => m.outcome).length === 0) && (
               <div className="glass-card rounded-2xl p-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
                   <Calculator className="w-8 h-8 text-slate-500" />
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  No Matches Yet
+                  No Analyses Yet
                 </h3>
                 <p className="text-slate-400 text-sm max-w-sm mx-auto">
-                  Paste a job description above and click &quot;Calculate Match&quot;
-                  to see how well you fit the role.
+                  Paste a job description above to get a brutally honest
+                  assessment of your interview chances.
                 </p>
               </div>
             )}
 
             {/* Match Cards */}
-            {matches && matches.map((match: Doc<"manualJobMatches">) => (
-              <div
-                key={match._id}
-                className={`glass-card rounded-2xl overflow-hidden bg-gradient-to-r ${getScoreBgColor(match.fitScore)}`}
-              >
-                {/* Main Row */}
+            {matches && matches
+              .filter((match): match is Doc<"manualJobMatches"> & { outcome: "MATCH" | "STRETCH" | "REJECT" } => !!match.outcome)
+              .map((match) => {
+              const styles = getOutcomeStyles(match.outcome);
+              const OutcomeIcon = styles.icon;
+
+              return (
                 <div
-                  className="p-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
-                  onClick={() => setExpandedId(expandedId === match._id ? null : match._id)}
+                  key={match._id}
+                  className={`glass-card rounded-2xl overflow-hidden bg-gradient-to-r ${styles.card}`}
                 >
-                  <div className="flex items-center gap-4">
-                    {/* Score Badge */}
-                    <div className={`w-16 h-16 rounded-xl flex flex-col items-center justify-center ${getScoreColor(match.fitScore)}`}>
-                      <span className="text-2xl font-black">{match.fitScore}</span>
-                      <span className="text-[10px] font-medium opacity-80">%</span>
-                    </div>
-
-                    {/* Job Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Briefcase size={14} className="text-slate-400" />
-                        <span className="font-semibold text-white truncate">
-                          {match.position}
-                        </span>
+                  {/* Main Row */}
+                  <div
+                    className="p-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
+                    onClick={() => setExpandedId(expandedId === match._id ? null : match._id)}
+                  >
+                    <div className="flex items-center gap-4">
+                      {/* Outcome Badge */}
+                      <div className={`px-3 py-2 rounded-lg border ${styles.badge} flex items-center gap-2`}>
+                        <OutcomeIcon size={18} />
+                        <div className="text-center">
+                          <span className="text-sm font-bold block">{match.outcome}</span>
+                          <span className="text-xs opacity-80">{match.interviewProbability}%</span>
+                        </div>
                       </div>
+
+                      {/* Job Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Briefcase size={14} className="text-slate-400" />
+                          <span className="font-semibold text-white truncate">
+                            {match.position}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Building2 size={14} className="text-slate-400" />
+                          <span className="text-sm text-slate-400 truncate">
+                            {match.company}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
                       <div className="flex items-center gap-2">
-                        <Building2 size={14} className="text-slate-400" />
-                        <span className="text-sm text-slate-400 truncate">
-                          {match.company}
-                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(match._id);
+                          }}
+                          className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Delete analysis"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        {expandedId === match._id ? (
+                          <ChevronUp size={20} className="text-slate-400" />
+                        ) : (
+                          <ChevronDown size={20} className="text-slate-400" />
+                        )}
                       </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(match._id);
-                        }}
-                        className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                        title="Delete match"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      {expandedId === match._id ? (
-                        <ChevronUp size={20} className="text-slate-400" />
-                      ) : (
-                        <ChevronDown size={20} className="text-slate-400" />
-                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Expanded Details */}
-                {expandedId === match._id && (
-                  <div className="px-4 pb-4 pt-2 border-t border-slate-700/50 space-y-4">
-                    {/* Penalty Calculation */}
-                    {match.penaltyCalculation && (
-                      <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                        <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">
-                          Score Calculation
+                  {/* Expanded Details */}
+                  {expandedId === match._id && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-700/50 space-y-4">
+                      {/* Failed Hard Requirements */}
+                      {!match.hardRequirementsPassed && match.failedCriteria && match.failedCriteria.length > 0 && (
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                          <h4 className="text-sm font-semibold text-red-400 mb-3 flex items-center gap-2">
+                            <AlertTriangle size={16} />
+                            Failed Hard Requirements
+                          </h4>
+                          <ul className="space-y-2">
+                            {match.failedCriteria.map((criteria, idx) => (
+                              <li
+                                key={idx}
+                                className="flex items-start gap-2 text-sm text-red-300"
+                              >
+                                <XCircle size={14} className="mt-0.5 shrink-0" />
+                                <span>{criteria}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Score Breakdown */}
+                      {match.hardRequirementsPassed && match.scores && (
+                        <div className="p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl">
+                          <h4 className="text-sm font-semibold text-slate-300 mb-3">
+                            Score Breakdown
+                          </h4>
+                          <div className="space-y-3">
+                            {/* Hard Skills */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-slate-400 w-24">Skills</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500 rounded-full"
+                                  style={{ width: `${(match.scores.hardSkillsSum / 50) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-mono text-slate-300 w-12 text-right">
+                                {match.scores.hardSkillsSum}/50
+                              </span>
+                            </div>
+
+                            {/* Experience Penalty */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-slate-400 w-24">Experience</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${match.scores.experiencePenalty === 0 ? "bg-green-500" : "bg-red-500"}`}
+                                  style={{ width: `${((30 + match.scores.experiencePenalty) / 30) * 100}%` }}
+                                />
+                              </div>
+                              <span className={`text-xs font-mono w-12 text-right ${match.scores.experiencePenalty === 0 ? "text-green-400" : "text-red-400"}`}>
+                                {match.scores.experiencePenalty}
+                              </span>
+                            </div>
+
+                            {/* Domain Penalty */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-slate-400 w-24">Domain</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${match.scores.domainPenalty === 0 ? "bg-green-500" : "bg-orange-500"}`}
+                                  style={{ width: `${((20 + match.scores.domainPenalty) / 20) * 100}%` }}
+                                />
+                              </div>
+                              <span className={`text-xs font-mono w-12 text-right ${match.scores.domainPenalty === 0 ? "text-green-400" : "text-orange-400"}`}>
+                                {match.scores.domainPenalty}
+                              </span>
+                            </div>
+
+                            {/* Metrics Bonus */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-slate-400 w-24">Metrics</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-emerald-500 rounded-full"
+                                  style={{ width: `${(match.scores.metricsBonus / 20) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-mono text-emerald-400 w-12 text-right">
+                                +{match.scores.metricsBonus}
+                              </span>
+                            </div>
+
+                            {/* Tech Stack Bonus */}
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-slate-400 w-24">Tech Bonus</span>
+                              <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-purple-500 rounded-full"
+                                  style={{ width: `${(match.scores.techStackBonus / 10) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-mono text-purple-400 w-12 text-right">
+                                +{match.scores.techStackBonus}
+                              </span>
+                            </div>
+
+                            {/* Total */}
+                            <div className="flex items-center gap-3 pt-2 border-t border-slate-700">
+                              <span className="text-xs font-semibold text-white w-24">TOTAL</span>
+                              <div className="flex-1" />
+                              <span className="text-sm font-bold text-white">
+                                {match.interviewProbability}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Passed indicator for non-score view */}
+                      {match.hardRequirementsPassed && !match.scores && (
+                        <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center gap-2">
+                          <CheckCircle2 size={16} className="text-green-400" />
+                          <span className="text-sm text-green-400">All hard requirements passed</span>
+                        </div>
+                      )}
+
+                      {/* Resume Gaps */}
+                      {match.resumeGaps && match.resumeGaps.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-slate-300 mb-3">
+                            Resume Gaps to Fix
+                          </h4>
+                          <div className="space-y-2">
+                            {match.resumeGaps.map((gap, idx) => (
+                              <div
+                                key={idx}
+                                className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50"
+                              >
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-white text-sm">
+                                    {gap.skill}
+                                  </span>
+                                  <span className={`px-2 py-0.5 text-xs rounded-full ${
+                                    gap.severity === "CRITICAL"
+                                      ? "bg-red-500/20 text-red-400"
+                                      : "bg-yellow-500/20 text-yellow-400"
+                                  }`}>
+                                    {gap.severity}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-slate-400">
+                                  {gap.fixStrategy}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Verdict */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
+                          <Sparkles size={14} className="text-accent-400" />
+                          Verdict
                         </h4>
-                        <p className="text-sm text-slate-300 font-mono">
-                          {match.penaltyCalculation}
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                          {match.verdictReasoning}
                         </p>
                       </div>
-                    )}
-
-                    {/* Skills Analysis */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {/* Critical Skills Found */}
-                      {match.criticalSkillsFound && match.criticalSkillsFound.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-green-400 mb-2">
-                            Critical Skills Matched
-                          </h4>
-                          <div className="flex flex-wrap gap-1.5">
-                            {match.criticalSkillsFound.map((skill: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded-md"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Critical Skills Missing */}
-                      {match.criticalSkillsMissing && match.criticalSkillsMissing.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-red-400 mb-2">
-                            Critical Skills Missing
-                          </h4>
-                          <div className="flex flex-wrap gap-1.5">
-                            {match.criticalSkillsMissing.map((skill: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded-md"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
-
-                    {/* AI Reasoning */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-                        <Sparkles size={14} className="text-accent-400" />
-                        Analysis Summary
-                      </h4>
-                      <p className="text-sm text-slate-400 leading-relaxed">
-                        {match.aiReasoning}
-                      </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {/* Strengths */}
-                      {match.keyStrengths && match.keyStrengths.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-green-400 mb-2">
-                            Key Strengths
-                          </h4>
-                          <ul className="space-y-1.5">
-                            {match.keyStrengths.map((strength: string, idx: number) => (
-                              <li
-                                key={idx}
-                                className="flex items-start gap-2 text-sm text-slate-300"
-                              >
-                                <span className="text-green-400 mt-0.5">+</span>
-                                <span>{strength}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* Challenges / Red Flags */}
-                      {match.potentialChallenges && match.potentialChallenges.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-red-400 mb-2">
-                            Red Flags / Gaps
-                          </h4>
-                          <ul className="space-y-1.5">
-                            {match.potentialChallenges.map((challenge: string, idx: number) => (
-                              <li
-                                key={idx}
-                                className="flex items-start gap-2 text-sm text-slate-300"
-                              >
-                                <span className="text-red-400 mt-0.5">!</span>
-                                <span>{challenge}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>

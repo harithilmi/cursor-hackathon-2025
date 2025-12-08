@@ -6,7 +6,36 @@ import type { Id } from "./_generated/dataModel";
 // Declare process for Convex runtime environment
 declare const process: { env: Record<string, string | undefined> };
 
-// Action to calculate match for a manually pasted job description
+// Scoring weights - fully controlled by code, not LLM
+const SCORING_WEIGHTS: Record<string, number> = {
+  // BASELINE
+  STARTING_SCORE: 100,
+
+  // PENALTIES (Subtractive)
+  CRITICAL_SKILL_MISSING: -20,   // Missing a "Must Have" core language/framework
+  SECONDARY_SKILL_MISSING: -10,  // Missing a required tool (Docker, Redis, etc.)
+  EXPERIENCE_TOO_LOW: -15,       // <75% of required years of experience
+  DOMAIN_MISMATCH: -10,          // Never worked in similar industry
+  GENERIC_CONTENT: -10,          // Resume lacks numbers/metrics/specifics
+  JOB_HOPPER: -5,                // Average tenure <1 year across last 3 jobs
+  SENIORITY_MISMATCH: -15,       // Junior applying for Senior, etc.
+
+  // BONUSES (Additive)
+  PERFECT_STACK_MATCH: 5,        // Has ALL core tech stack items with evidence
+  METRICS_HEAVY: 10,             // >50% of bullets contain specific numbers
+  ELITE_COMPANY_MATCH: 5,        // Worked at FAANG or direct competitor
+  TRANSITION_EASE: 5,            // Evidence of rapid learning/similar transition
+  EXACT_ROLE_MATCH: 5,           // Same job title as the role
+};
+
+// Resume gap type for structured output
+type ResumeGap = {
+  skill: string;
+  severity: "CRITICAL" | "MINOR";
+  fixStrategy: string;
+};
+
+// Action to calculate match using "Ruthless Gatekeeper" system
 export const calculateMatch = action({
   args: {
     userId: v.id("users"),
@@ -17,65 +46,95 @@ export const calculateMatch = action({
     matchId: Id<"manualJobMatches">;
     position: string;
     company: string;
-    fitScore: number;
-    aiReasoning: string;
-    keyStrengths: string[];
-    potentialChallenges: string[];
-    criticalSkillsFound: string[];
-    criticalSkillsMissing: string[];
-    penaltyCalculation: string;
+    outcome: "MATCH" | "STRETCH" | "REJECT";
+    interviewProbability: number;
+    hardRequirementsPassed: boolean;
+    failedCriteria: string[];
+    resumeGaps: ResumeGap[];
+    verdictReasoning: string;
   }> => {
     const apiKey = process.env.ANTHROPIC_API_KEY!;
     if (!apiKey) {
       throw new Error("Anthropic API key not configured");
     }
 
-    // Define the JSON schema for structured output (flat structure for better compatibility)
+    // JSON schema for structured output - "Tag-Based Auditor" system
+    // LLM outputs boolean FLAGS, code applies weights and calculates score
     const schema = {
       type: "object",
       properties: {
         position: {
           type: "string",
-          description: "The job position/title extracted from the job description",
+          description: "Job position/title extracted from the job description",
         },
         company: {
           type: "string",
-          description: "The company name extracted from the job description",
+          description: "Company name extracted from the job description. Use 'Unknown' if not found.",
         },
-        criticalSkillsFound: {
+        hardRequirementsPassed: {
+          type: "boolean",
+          description: "false ONLY if candidate is missing >50% of must-have skills OR experience gap >3 years OR missing mandatory visa/cert",
+        },
+        failedCriteria: {
           type: "array",
           items: { type: "string" },
-          description: "Must-have skills the candidate HAS",
+          description: "List of hard requirements failed. Empty array [] if passed.",
         },
-        criticalSkillsMissing: {
+        detectedFlags: {
           type: "array",
-          items: { type: "string" },
-          description: "Must-have skills the candidate is MISSING",
+          items: {
+            type: "string",
+            enum: [
+              "CRITICAL_SKILL_MISSING",
+              "SECONDARY_SKILL_MISSING",
+              "EXPERIENCE_TOO_LOW",
+              "DOMAIN_MISMATCH",
+              "GENERIC_CONTENT",
+              "JOB_HOPPER",
+              "SENIORITY_MISMATCH",
+              "PERFECT_STACK_MATCH",
+              "METRICS_HEAVY",
+              "ELITE_COMPANY_MATCH",
+              "TRANSITION_EASE",
+              "EXACT_ROLE_MATCH",
+            ],
+          },
+          description: "List of applicable flags. Include MULTIPLE of same flag if multiple instances (e.g., 2x CRITICAL_SKILL_MISSING for 2 missing critical skills).",
         },
-        penaltyCalculation: {
+        flagDetails: {
           type: "string",
-          description: "Show the math: Started at 100, -15 for X, -20 for Y, +5 for Z = final score",
+          description: "Explain each flag: 'CRITICAL_SKILL_MISSING: No NestJS. CRITICAL_SKILL_MISSING: No Python. METRICS_HEAVY: 4 bullets with numbers.'",
         },
-        fitScore: {
-          type: "number",
-          description: "Final score 0-100 after subtractive calculation. Do NOT round to 0 or 5.",
-        },
-        reasoning: {
-          type: "string",
-          description: "Summary of why this score was given",
-        },
-        keyStrengths: {
+        missingSkillsList: {
           type: "array",
           items: { type: "string" },
-          description: "3-5 specific strengths matching the JD",
+          description: "List of specific skills missing from resume that JD requires",
         },
-        potentialChallenges: {
+        resumeGaps: {
           type: "array",
-          items: { type: "string" },
-          description: "2-3 red flags or gaps that could be deal-breakers",
+          items: {
+            type: "object",
+            properties: {
+              skill: { type: "string" },
+              severity: { type: "string", enum: ["CRITICAL", "MINOR"] },
+              fixStrategy: { type: "string", description: "Specific action to fix this gap" },
+            },
+            required: ["skill", "severity", "fixStrategy"],
+            additionalProperties: false,
+          },
+          description: "Specific gaps with actionable fix strategies",
         },
       },
-      required: ["position", "company", "criticalSkillsFound", "criticalSkillsMissing", "penaltyCalculation", "fitScore", "reasoning", "keyStrengths", "potentialChallenges"],
+      required: [
+        "position",
+        "company",
+        "hardRequirementsPassed",
+        "failedCriteria",
+        "detectedFlags",
+        "flagDetails",
+        "missingSkillsList",
+        "resumeGaps",
+      ],
       additionalProperties: false,
     };
 
@@ -99,7 +158,7 @@ export const calculateMatch = action({
         messages: [
           {
             role: "user",
-            content: `You are a ruthless technical recruiter. You do NOT grade on a curve. You look for reasons to REJECT candidates. Your goal is to identify the precise gap between the Job Description and the Resume.
+            content: `You are a Resume Auditor. Your job is to extract BOOLEAN flags from the comparison between a Job Description (JD) and a Resume. You do NOT calculate scores - the code does that.
 
 ### JOB DESCRIPTION:
 ${args.rawInput}
@@ -107,37 +166,47 @@ ${args.rawInput}
 ### CANDIDATE RESUME:
 ${args.resumeContent}
 
-### INSTRUCTIONS - SUBTRACTIVE SCORING MODEL
+### INSTRUCTIONS
 
-**Step 1: CRITICAL ANALYSIS**
-- Identify the top 3 "Must-Have" hard skills in the JD
-- Check strictly if the candidate has them (exact or very close match only)
-- Identify Years of Experience (YoE) requirement vs Candidate's actual YoE
+**STEP 1: KILL SWITCH**
+Set hardRequirementsPassed = false ONLY if:
+- Missing >50% of "Must Have" / "Required" tech stack
+- Experience gap > 3 years below minimum required
+- Missing mandatory Visa/Location/Certification requirement
 
-**Step 2: CALCULATE SCORE (Start at 100, subtract penalties)**
+If failed, list what failed in failedCriteria. Otherwise, failedCriteria = [].
 
-PENALTIES:
-- Missing a top-3 critical skill: **-15 points EACH**
-- Missing other required skills: **-5 points EACH**
-- Experience gap (candidate has <80% of required YoE): **-20 points**
-- Domain/industry mismatch: **-10 points**
-- Resume has irrelevant bloat/noise: **-5 points**
+**STEP 2: DETECT FLAGS**
+Analyze the text and output ALL applicable flags in detectedFlags.
+Include MULTIPLE instances of the same flag if applicable (e.g., missing 2 critical skills = 2x CRITICAL_SKILL_MISSING).
 
-BONUSES (apply after penalties):
-- Each "Nice-to-Have" skill matched: **+2 points** (max +10)
-- Exceeds seniority appropriately: **+5 points**
+FLAG DEFINITIONS:
 
-**Step 3: ENFORCE CAPS**
-- If ANY critical skill is missing: score CANNOT exceed 75
-- Minimum score is 0
-- Maximum score is 100
+PENALTY FLAGS:
+- "CRITICAL_SKILL_MISSING": Candidate is missing a "Must Have" core language/framework (e.g., JD demands Python, Resume has zero Python). Add once PER missing critical skill.
+- "SECONDARY_SKILL_MISSING": Candidate is missing a tool listed as required but not the main language (e.g., Missing Docker, Redis, testing library). Add once PER missing secondary skill.
+- "EXPERIENCE_TOO_LOW": Candidate has < 75% of required years of experience.
+- "DOMAIN_MISMATCH": Candidate has never worked in a similar industry (e.g., JD is Banking, Resume is purely Gaming).
+- "GENERIC_CONTENT": Resume bullet points lack numbers, metrics, or specific implementation details.
+- "JOB_HOPPER": Candidate has average tenure < 1 year across last 3 jobs.
+- "SENIORITY_MISMATCH": Junior applying for Senior role, or vice versa.
 
-**Step 4: FINAL SCORE RULES**
-- DO NOT round to nearest 5 or 10
-- Use specific integers like 67, 83, 71, 54
-- Show your penalty calculation in gapAnalysis.penaltyCalculation
+BONUS FLAGS:
+- "PERFECT_STACK_MATCH": Candidate has extensive evidence for ALL core tech stack items listed as required.
+- "METRICS_HEAVY": >50% of bullet points contain specific numbers ($, %, latency, users).
+- "ELITE_COMPANY_MATCH": Candidate worked at a top-tier company (FAANG, etc.) or direct competitor.
+- "TRANSITION_EASE": Evidence of rapid learning or similar career transition.
+- "EXACT_ROLE_MATCH": Candidate has the exact same job title as the role.
 
-Extract position title and company name from the JD. Use "Unknown Company" if not found.`,
+**STEP 3: EXPLAIN FLAGS**
+In flagDetails, explain each flag briefly:
+"CRITICAL_SKILL_MISSING: No NestJS experience found. SECONDARY_SKILL_MISSING: No AWS mentioned. METRICS_HEAVY: Found 5 bullets with specific metrics (40% improvement, 10k users, etc.)."
+
+### RULES
+- Extract position and company from JD. Use "Unknown" if not found.
+- List all missing skills in missingSkillsList.
+- Provide actionable resumeGaps with specific fixStrategy.
+- Be strict with flag definitions. Only add a flag if the condition is clearly met.`,
           },
         ],
       }),
@@ -152,50 +221,126 @@ Extract position title and company name from the JD. Use "Unknown Company" if no
     const data = await response.json();
     const result = JSON.parse(data.content[0].text);
 
+    // CODE DOES THE MATH using flag-based scoring
+    let interviewProbability: number;
+    let outcome: "MATCH" | "STRETCH" | "REJECT";
+    let scoreBreakdown: string[] = [];
+
+    if (!result.hardRequirementsPassed) {
+      // Kill switch triggered
+      interviewProbability = 0;
+      outcome = "REJECT";
+      scoreBreakdown = ["REJECTED by kill switch"];
+    } else {
+      // Calculate score from flags - start at 100, apply penalties and bonuses
+      let score = SCORING_WEIGHTS.STARTING_SCORE;
+      scoreBreakdown.push(`Start: ${score}`);
+
+      // Apply each flag's weight
+      const flags: string[] = result.detectedFlags;
+      for (const flag of flags) {
+        const weight = SCORING_WEIGHTS[flag];
+        if (weight !== undefined) {
+          score += weight;
+          const sign = weight >= 0 ? "+" : "";
+          scoreBreakdown.push(`${flag}: ${sign}${weight}`);
+        }
+      }
+
+      // Clamp between 0 and 100
+      interviewProbability = Math.max(0, Math.min(100, score));
+      scoreBreakdown.push(`Final: ${interviewProbability}`);
+
+      // Determine outcome based on calculated score
+      if (interviewProbability >= 70) {
+        outcome = "MATCH";
+      } else if (interviewProbability >= 50) {
+        outcome = "STRETCH";
+      } else {
+        outcome = "REJECT";
+      }
+    }
+
+    // Build verdict with the flag-based calculation
+    const verdictReasoning = `${scoreBreakdown.join(" → ")}. ${result.flagDetails}`;
+
+    // Build scores object from flags for UI display
+    const flags: string[] = result.detectedFlags || [];
+    const scores = {
+      // Count penalties
+      hardSkillsSum: 50 + (
+        flags.filter(f => f === "CRITICAL_SKILL_MISSING").length * SCORING_WEIGHTS.CRITICAL_SKILL_MISSING +
+        flags.filter(f => f === "SECONDARY_SKILL_MISSING").length * SCORING_WEIGHTS.SECONDARY_SKILL_MISSING
+      ),
+      experiencePenalty:
+        (flags.includes("EXPERIENCE_TOO_LOW") ? SCORING_WEIGHTS.EXPERIENCE_TOO_LOW : 0) +
+        (flags.includes("SENIORITY_MISMATCH") ? SCORING_WEIGHTS.SENIORITY_MISMATCH : 0),
+      domainPenalty:
+        (flags.includes("DOMAIN_MISMATCH") ? SCORING_WEIGHTS.DOMAIN_MISMATCH : 0) +
+        (flags.includes("GENERIC_CONTENT") ? SCORING_WEIGHTS.GENERIC_CONTENT : 0) +
+        (flags.includes("JOB_HOPPER") ? SCORING_WEIGHTS.JOB_HOPPER : 0),
+      metricsBonus:
+        (flags.includes("METRICS_HEAVY") ? SCORING_WEIGHTS.METRICS_HEAVY : 0) +
+        (flags.includes("PERFECT_STACK_MATCH") ? SCORING_WEIGHTS.PERFECT_STACK_MATCH : 0),
+      techStackBonus:
+        (flags.includes("ELITE_COMPANY_MATCH") ? SCORING_WEIGHTS.ELITE_COMPANY_MATCH : 0) +
+        (flags.includes("TRANSITION_EASE") ? SCORING_WEIGHTS.TRANSITION_EASE : 0) +
+        (flags.includes("EXACT_ROLE_MATCH") ? SCORING_WEIGHTS.EXACT_ROLE_MATCH : 0),
+    };
+
     // Save match to database
     const matchId = await ctx.runMutation(api.manualMatches.saveMatch, {
       userId: args.userId,
       rawInput: args.rawInput,
       position: result.position,
       company: result.company,
-      fitScore: result.fitScore,
-      aiReasoning: result.reasoning,
-      keyStrengths: result.keyStrengths,
-      potentialChallenges: result.potentialChallenges,
-      criticalSkillsFound: result.criticalSkillsFound,
-      criticalSkillsMissing: result.criticalSkillsMissing,
-      penaltyCalculation: result.penaltyCalculation,
+      outcome: outcome,
+      interviewProbability: interviewProbability,
+      hardRequirementsPassed: result.hardRequirementsPassed,
+      failedCriteria: result.failedCriteria,
+      scores: scores,
+      resumeGaps: result.resumeGaps,
+      verdictReasoning: verdictReasoning,
     });
 
     return {
       matchId,
       position: result.position,
       company: result.company,
-      fitScore: result.fitScore,
-      aiReasoning: result.reasoning,
-      keyStrengths: result.keyStrengths,
-      potentialChallenges: result.potentialChallenges,
-      criticalSkillsFound: result.criticalSkillsFound,
-      criticalSkillsMissing: result.criticalSkillsMissing,
-      penaltyCalculation: result.penaltyCalculation,
+      outcome: outcome,
+      interviewProbability: interviewProbability,
+      hardRequirementsPassed: result.hardRequirementsPassed,
+      failedCriteria: result.failedCriteria,
+      resumeGaps: result.resumeGaps,
+      verdictReasoning: verdictReasoning,
     };
   },
 });
 
-// Save match to database (internal mutation)
+// Save match to database
 export const saveMatch = mutation({
   args: {
     userId: v.id("users"),
     rawInput: v.string(),
     position: v.string(),
     company: v.string(),
-    fitScore: v.number(),
-    aiReasoning: v.string(),
-    keyStrengths: v.array(v.string()),
-    potentialChallenges: v.array(v.string()),
-    criticalSkillsFound: v.optional(v.array(v.string())),
-    criticalSkillsMissing: v.optional(v.array(v.string())),
-    penaltyCalculation: v.optional(v.string()),
+    outcome: v.union(v.literal("MATCH"), v.literal("STRETCH"), v.literal("REJECT")),
+    interviewProbability: v.number(),
+    hardRequirementsPassed: v.boolean(),
+    failedCriteria: v.array(v.string()),
+    scores: v.object({
+      hardSkillsSum: v.number(),
+      experiencePenalty: v.number(),
+      domainPenalty: v.number(),
+      metricsBonus: v.number(),
+      techStackBonus: v.number(),
+    }),
+    resumeGaps: v.array(v.object({
+      skill: v.string(),
+      severity: v.union(v.literal("CRITICAL"), v.literal("MINOR")),
+      fixStrategy: v.string(),
+    })),
+    verdictReasoning: v.string(),
   },
   handler: async (ctx, args) => {
     const matchId = await ctx.db.insert("manualJobMatches", {
@@ -203,13 +348,13 @@ export const saveMatch = mutation({
       rawInput: args.rawInput,
       position: args.position,
       company: args.company,
-      fitScore: args.fitScore,
-      aiReasoning: args.aiReasoning,
-      keyStrengths: args.keyStrengths,
-      potentialChallenges: args.potentialChallenges,
-      criticalSkillsFound: args.criticalSkillsFound,
-      criticalSkillsMissing: args.criticalSkillsMissing,
-      penaltyCalculation: args.penaltyCalculation,
+      outcome: args.outcome,
+      interviewProbability: args.interviewProbability,
+      hardRequirementsPassed: args.hardRequirementsPassed,
+      failedCriteria: args.failedCriteria,
+      scores: args.scores,
+      resumeGaps: args.resumeGaps,
+      verdictReasoning: args.verdictReasoning,
       createdAt: Date.now(),
     });
 
@@ -217,7 +362,7 @@ export const saveMatch = mutation({
   },
 });
 
-// Get all matches for a user, sorted by fit score (descending)
+// Get all matches for a user, sorted by outcome then probability
 export const getUserMatches = query({
   args: {
     userId: v.id("users"),
@@ -228,8 +373,21 @@ export const getUserMatches = query({
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .collect();
 
-    // Sort by fitScore descending
-    matches.sort((a, b) => b.fitScore - a.fitScore);
+    // Sort by outcome priority (MATCH > STRETCH > REJECT), then by probability
+    // Records without outcome (legacy) go to the end
+    const outcomePriority: Record<string, number> = { MATCH: 0, STRETCH: 1, REJECT: 2 };
+    matches.sort((a, b) => {
+      // Legacy records without outcome go last
+      const aOutcome = a.outcome;
+      const bOutcome = b.outcome;
+      if (!aOutcome && !bOutcome) return 0;
+      if (!aOutcome) return 1;
+      if (!bOutcome) return -1;
+
+      const priorityDiff = (outcomePriority[aOutcome] ?? 3) - (outcomePriority[bOutcome] ?? 3);
+      if (priorityDiff !== 0) return priorityDiff;
+      return (b.interviewProbability ?? 0) - (a.interviewProbability ?? 0);
+    });
 
     return matches;
   },
@@ -242,5 +400,24 @@ export const deleteMatch = mutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.matchId);
+  },
+});
+
+// Delete all matches for a user (used for migration)
+export const deleteAllUserMatches = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const matches = await ctx.db
+      .query("manualJobMatches")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    for (const match of matches) {
+      await ctx.db.delete(match._id);
+    }
+
+    return { deleted: matches.length };
   },
 });

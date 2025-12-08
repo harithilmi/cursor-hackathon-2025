@@ -69,19 +69,48 @@ export default defineSchema({
     .index("by_user_and_job", ["userId", "jobId"]),
 
   // Manual job match calculations (user-pasted job descriptions)
+  // Uses "Ruthless Gatekeeper" system with binary gate checks
   manualJobMatches: defineTable({
     userId: v.id("users"),
     rawInput: v.string(),
     position: v.string(),
     company: v.string(),
-    fitScore: v.number(),
-    aiReasoning: v.string(),
-    keyStrengths: v.array(v.string()),
-    potentialChallenges: v.array(v.string()),
+
+    // Tiered outcome classification (new system)
+    outcome: v.optional(v.union(v.literal("MATCH"), v.literal("STRETCH"), v.literal("REJECT"))),
+    interviewProbability: v.optional(v.number()), // 0-100
+
+    // Hard requirements binary check (new system)
+    hardRequirementsPassed: v.optional(v.boolean()),
+    failedCriteria: v.optional(v.array(v.string())),
+
+    // Score breakdown (new scoring engine system)
+    scores: v.optional(v.object({
+      hardSkillsSum: v.number(),      // 0-50
+      experiencePenalty: v.number(),  // -30 to 0
+      domainPenalty: v.number(),      // -20 to 0
+      metricsBonus: v.number(),       // 0-20
+      techStackBonus: v.number(),     // 0-10
+    })),
+
+    // Resume gaps with severity and fix strategies (new system)
+    resumeGaps: v.optional(v.array(v.object({
+      skill: v.string(),
+      severity: v.union(v.literal("CRITICAL"), v.literal("MINOR")),
+      fixStrategy: v.string(),
+    }))),
+
+    verdictReasoning: v.optional(v.string()),
+
+    // Legacy fields (to be removed after migration)
+    fitScore: v.optional(v.number()),
+    aiReasoning: v.optional(v.string()),
+    keyStrengths: v.optional(v.array(v.string())),
+    potentialChallenges: v.optional(v.array(v.string())),
     criticalSkillsFound: v.optional(v.array(v.string())),
     criticalSkillsMissing: v.optional(v.array(v.string())),
     penaltyCalculation: v.optional(v.string()),
+
     createdAt: v.number(),
-  }).index("by_user", ["userId"])
-    .index("by_user_and_score", ["userId", "fitScore"]),
+  }).index("by_user", ["userId"]),
 });
