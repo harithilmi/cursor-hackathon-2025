@@ -1,5 +1,13 @@
 import { Cpu } from "lucide-react";
 
+/**
+ * Renders a fixed status footer bar at the bottom of the page with service indicators and model label.
+ *
+ * The left side shows three labeled status items ("Next.js", "Convex", "Apify") each preceded by a small accent dot.
+ * The right side shows a CPU icon followed by the text "Claude 3.5 Sonnet".
+ *
+ * @returns The footer JSX element containing status indicators on the left and the model label on the right.
+ */
 export function StatusFooter() {
   return (
     <div className="fixed bottom-0 w-full bg-foreground text-background text-[10px] py-1.5 px-4 flex justify-between items-center z-50">

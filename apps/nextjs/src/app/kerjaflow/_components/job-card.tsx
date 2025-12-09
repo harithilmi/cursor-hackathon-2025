@@ -9,6 +9,14 @@ interface JobCardProps {
   onClick: (job: Job) => void;
 }
 
+/**
+ * Render a clickable job listing card showing title, company, fit score, location, salary, tags, and a "Generate" action.
+ *
+ * @param job - The job data to display.
+ * @param fitScore - The job's fit score as a percentage (0–100); used to determine score color.
+ * @param onClick - Callback invoked with `job` when the card is clicked.
+ * @returns A Card element representing the job listing.
+ */
 export function JobCard({ job, fitScore, onClick }: JobCardProps) {
   return (
     <Card

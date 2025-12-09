@@ -7,6 +7,15 @@ interface HeaderProps {
   currentView: "dump" | "search" | "results" | "generate";
 }
 
+/**
+ * Render the top navigation header containing the brand link, status badge, action controls, and avatar.
+ *
+ * @param currentView - Current UI view; controls conditional rendering:
+ *   - "results": shows the "Scraper Active" status badge.
+ *   - "generate" or "dump": hides the "Master Dump" action button.
+ *   - "search" or other values: shows the "Master Dump" button where applicable.
+ * @returns The header JSX element with navigation controls and status indicators
+ */
 export function Header({ currentView }: HeaderProps) {
   const router = useRouter();
 

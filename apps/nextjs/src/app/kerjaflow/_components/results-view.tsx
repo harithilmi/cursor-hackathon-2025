@@ -8,6 +8,17 @@ interface ResultsViewProps {
   onModifySearch: () => void;
 }
 
+/**
+ * Render job results ranked by fit score with controls to modify the search and select a job.
+ *
+ * Displays a header showing the current search query (defaults to "Software Engineer" when `searchQuery` is falsy), the total number of mock jobs, a "Modify Search" button, and a responsive grid of JobCard components sorted by calculated fit against `userDump`.
+ *
+ * @param searchQuery - The current search query string displayed in the header; when empty, "Software Engineer" is shown.
+ * @param userDump - The user's resume or text used to calculate fit scores for each job.
+ * @param onJobSelect - Callback invoked with the selected `Job` when a job card is clicked.
+ * @param onModifySearch - Callback invoked when the "Modify Search" button is clicked.
+ * @returns A React element containing the results header and a grid of job cards with associated fit scores.
+ */
 export function ResultsView({
   searchQuery,
   userDump,

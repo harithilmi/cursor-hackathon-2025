@@ -44,6 +44,13 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
+/**
+ * Root HTML layout that applies global fonts, theme, and app-wide providers.
+ *
+ * @param props - Component props.
+ * @param props.children - React node rendered inside the provider hierarchy.
+ * @returns The root HTML structure (<html> and <body>) wrapping the app children with ThemeProvider, ConvexClientProvider, TRPCReactProvider, and the Toaster.
+ */
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">

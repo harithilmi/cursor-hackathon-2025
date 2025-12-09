@@ -9,6 +9,16 @@ interface ResumeDumpViewProps {
   onNext: () => void;
 }
 
+/**
+ * Render the "Master Dump" step UI for pasting or uploading full career history.
+ *
+ * Renders a labeled textarea prefilled with `resume`, an upload PDF action, a character counter, and actions to skip or save; the Save action is enabled only when the pasted content has at least 20 characters.
+ *
+ * @param resume - The current resume text shown in the textarea.
+ * @param setResume - Callback invoked with the updated textarea value when the user edits the resume.
+ * @param onNext - Callback invoked to advance to the next step (triggered by "Skip for now" or "Save to Profile").
+ * @returns A React element containing the master dump textarea, upload action, character counter, and skip/save controls.
+ */
 export function ResumeDumpView({
   resume,
   setResume,
